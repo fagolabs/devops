@@ -432,3 +432,4 @@ Subscribe to Redhat or Debian Linux security mailing list or RSS feed.
 Refs
 ---
 1. https://www.cyberciti.biz/tips/linux-security.html
+2. https://www.lifewire.com/harden-ubuntu-server-security-4178243
