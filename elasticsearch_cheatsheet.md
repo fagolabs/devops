@@ -24,14 +24,6 @@
   - [Create a Snapshot](#elasticsearch-snapshots)
   - [Restore from a Snapshot](#elasticsearch-restore)
 
-# Resources 
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html
-- https://www.elastic.co/blog/managing-time-based-indices-efficiently
-- http://joelabrahamsson.com/elasticsearch-101/
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html
-- https://chatbots.network/logstash-exclude-bots-from-result/
-
 # Overview
 
 ## Cluster Health:
@@ -1430,3 +1422,13 @@ or leave out the body for normal restore
 - https://www.youtube.com/watch?v=Otl-IcmbiDE
 - https://recology.info/2015/02/elasticsearch-backup-restore/
 - https://medium.com/@rcdexta/periodic-snapshotting-of-elasticsearch-indices-f6b6ca221a0c
+
+
+
+# Resources 
+- https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html
+- https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html
+- https://www.elastic.co/blog/managing-time-based-indices-efficiently
+- http://joelabrahamsson.com/elasticsearch-101/
+- https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html
+- https://chatbots.network/logstash-exclude-bots-from-result/
