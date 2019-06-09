@@ -1,10 +1,10 @@
 # Content:
 
-1. [Cluster Health](#cluster-health)
+- [Cluster Health](#cluster-health)
   - [Index Level](#cluster-health-index-level)
   - [Shard Level](#cluster-health-shard-level)
-2. [Nodes Overview](#nodes-overview)
-3. [Indices Overview](#indices-overview)
+- [Nodes Overview](#nodes-overview)
+- [Indices Overview](#indices-overview)
 - [4. Cluster Maintenance](#cluster-maintenance)
 - [Settings]()
   - [Cluster Settings](#cluster-settings)
