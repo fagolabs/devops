@@ -5,7 +5,7 @@
   - [Shard Level](#cluster-health-shard-level)
 - [Nodes Overview](#nodes-overview)
 - [Indices Overview](#indices-overview)
-- [4. Cluster Maintenance](#cluster-maintenance)
+- [Cluster Maintenance](#cluster-maintenance)
 - [Settings]()
   - [Cluster Settings](#cluster-settings)
 - [Ingest](#ingest-documents-into-elasticsearch)
