@@ -1,0 +1,20 @@
+{
+    "search": {
+        "columns": [
+            "_source"
+        ], 
+        "description": "", 
+        "hits": 0, 
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"index\":\"f0a63d30-9b56-11e9-b7ef-3f1c23f48372\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[{\"meta\":{\"index\":\"f0a63d30-9b56-11e9-b7ef-3f1c23f48372\",\"negate\":false,\"disabled\":false,\"alias\":null,\"type\":\"phrase\",\"key\":\"app\",\"value\":\"dummy\",\"params\":{\"query\":\"dummy\",\"type\":\"phrase\"}},\"query\":{\"match\":{\"app\":{\"query\":\"dummy\",\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+        }, 
+        "sort": [
+            "@timestamp", 
+            "desc"
+        ], 
+        "title": "dummy-log", 
+        "version": 1
+    }, 
+    "type": "search", 
+    "updated_at": "2019-06-30T18:05:16.075Z"
+}
