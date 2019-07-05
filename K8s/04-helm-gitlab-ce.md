@@ -31,7 +31,7 @@ image: gitlab/gitlab-ce:9.4.1-ce.0
 ## For minikube, set this to NodePort, elsewhere use LoadBalancer
 ## ref: http://kubernetes.io/docs/user-guide/services/#publishing-services---service-types
 ##
-serviceType: LoadBalancer
+serviceType: ClusterIP
 
 ## Ingress configuration options
 ##
@@ -128,4 +128,6 @@ redis:
     storageClass: "slow"
     size: 2Gi
 EOF
+
+helm install --name gitlab -f gitlab-values.yml stable/gitlab-ce
 ```
