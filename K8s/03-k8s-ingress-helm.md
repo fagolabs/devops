@@ -9,7 +9,7 @@ Cài Ingress cho phép expose dịch vụ chạy trong K8s cluster.
 
 Tài liệu này cài đặt Ingress nginx của community thay vì NginxINC.
 
-Với môi trường lab, ta cài theo cách baremetal trong hướng dẫn và thay phương thức triển khai, từ deployment thành daemonset để tất cả các node đều expose dịch vụ qua cổng 80 và 443.
+Với môi trường lab, ta cài theo cách baremetal trong [hướng dẫn](https://kubernetes.github.io/ingress-nginx/deploy/) và thay phương thức triển khai, từ deployment thành daemonset để tất cả các node đều expose dịch vụ qua cổng 80 và 443.
 
 Manifest sau đây sẽ cài các nginx-ingress pod trên tất cả các node trong cluster. Ta có thể chọn node muốn cài bằng [`nodeSeletor`](https://multinode-kubernetes-cluster.readthedocs.io/en/latest/08-k8s-daemonsets.html) 
 
