@@ -5,9 +5,9 @@ Cài đặt GlusterFS và Heketi để cung cấp storage-class cho K8s.
 
 Phần cài đặt này sử dụng người dùng `root` và đứng ở thư mục `/root`.
 
-## Điều kiện tiên quyết
+### Trên tất cả các node storage
 
-Ta cần 3 node trong GlusterFS clustser, mỗi node thêm ít nhất một disk ngoài disk chạy OS.
+Ta cần ít nhất 3 node trong GlusterFS clustser, mỗi node thêm ít nhất một disk ngoài disk chạy OS.
 
 Trên các node chạy GlusterFS:
 - Enable module `dm_thin_pool` trong kernel:
@@ -24,7 +24,7 @@ apt update
 apt install -y glusterfs-client=4.0.2-ubuntu2~bionic1
 ```
 
-## Cài đặt
+### Trên node triển khai
 
 Download Heketi v9.0.0
 
