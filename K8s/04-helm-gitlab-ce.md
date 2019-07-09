@@ -129,5 +129,5 @@ redis:
     size: 2Gi
 EOF
 
-helm install --name gitlab -f gitlab-values.yml stable/gitlab-ce
+helm install --name gitlab -f gitlab-values.yml --set postgresql.postgresqlDatabase=gitlab stable/gitlab-ce
 ```
