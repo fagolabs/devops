@@ -258,11 +258,13 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          #ports:
-          #  - name: http
-          #    containerPort: 80
-          #  - name: https
-          #    containerPort: 443
+          ports:
+            - name: http
+              containerPort: 80
+            - name: https
+              containerPort: 443
+            - name: highssh
+              containerPort: 10222
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -283,6 +285,25 @@ spec:
             successThreshold: 1
             timeoutSeconds: 10
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  selector:
+    app: ingress-nginx
 ---
 EOF
 kubectl apply -f nginx-ingress.yml
