@@ -15,6 +15,14 @@ spec:
           serviceName: jira-svc
           servicePort: 8080
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+  10222: "default/gitlab-gitlab-ce:22"
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
