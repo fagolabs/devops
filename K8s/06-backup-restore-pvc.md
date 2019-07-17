@@ -84,90 +84,9 @@ apt install -y nfs-common
 
 ## Backup, restore cho Gitlab, Jira
 
-chi tiết hoạt động backup và restore cho gitlab và jira
+Chi tiết hoạt động backup và restore cho gitlab và jira
 
-#### 1. Gitlab
-
-##### Backup
-
-Tạo secret dùng để chứa mật khẩu truy cập vào snapshot
-
-```bash
-echo -n 'gitlab-backup-password' > GITLAB_RESTIC_PASSWORD
-kubectl create secret generic gitlab-secret --from-file=./GITLAB_RESTIC_PASSWORD
-```
-
-check xem secret đã tạo thành công chưa:
-
-```
-kubectl get secret gitlab-secret -o yaml
-```
-
-Tạo restic cho Gitlab như sau:
-
-```bash
-cat > gitlab-restic.yml << EOF
-apiVersion: stash.appscode.com/v1alpha1
-kind: Restic
-metadata:
-  name: gitlab-restic
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: gitlab-gitlab-ce
-  # fileGroups là array gồm các đường dẫn được backup trong Pod
-  fileGroups:
-  - path: /gitlab-data
-    retentionPolicyName: 'keep-last-3' 
-  backend:
-    local:
-      # mountPath có thể đặt là gì cũng đc nhưng đừng trùng với các đường dẫn có sẵn trong Pod muốn backup
-      mountPath: /safe/data
-      # sử dụng nfs server vừa tạo ở trên làm backend
-      nfs:
-        # ta có thể để tên miền svc hoặc IP của svc
-        server: "nfs-service.storage.svc.cluster.local"
-        path: "/"
-    storageSecretName: gitlab-secret
-  # schedule sử dụng giống hệt cú pháp cron
-  # tạo snapshot hàng giờ
-  schedule: '@hourly'
-  volumeMounts:
-  - mountPath: /gitlab-data
-    name: gitlab-data
-  # chỉ giữ lại 3 snapshot mới nhất
-  retentionPolicies:
-  - name: 'keep-last-3'
-    keepLast: 3
-    prune: true
-EOF
-```
-
-    NOTE: Sau khi tạo restic, một sidecar container được thêm vào deployment của gitlab. Với strategy mặc định, Deployment sẽ xóa pod gitlab cũ rồi mới tạo lại Pod mới (maxUnavailable=1 và ta chỉ có một Pod) gây downtime vài phút, ta có thể sửa tham số như sau:
-
-    ```bash
-    kubectl patch deployment gitlab-gitlab-ce --type="merge" --patch='{"spec": {"rollingUpdate": {"maxUnavailable": 0}}}'
-    ```
-
-Ta tạo restic để backup cho gitlab:
-
-```bash
-kubectl apply -f gitlab-restic.yml
-```
-
-Sau vài phút check xem đã có repository và snapshot chưa:
-
-```bash
-kubectl get repository
-kubectl get snapshot
-```
-
-##### Restore
-
-
-
-#### 2. Jira
+#### 1. Jira
 
 ##### Backup
 
@@ -178,7 +97,7 @@ echo -n 'jira-backup-password' > JIRA_RESTIC_PASSWORD
 kubectl create secret generic jira-secret --from-file=./JIRA_RESTIC_PASSWORD
 ```
 
-Tạo restic cho Jira như sau:
+Tạo `restic` cho Jira như sau:
 
 ```bash
 cat > jira-restic.yml << EOF
@@ -212,7 +131,209 @@ spec:
 EOF
 ```
 
+  - `spec.selector` được dùng để xác định workload (deployment, statefulset...) muốn backup
+  - `spec.retentionPolicies` định nghĩa rule giữ lại các snapshot. Ta có thể định nghĩa một hoặc nhiều rule và áp vào các đường dẫn trong fileGroups.
+  - `spec.fileGroups` là danh sách các đường dẫn trong Pod sẽ được backup bởi restic
+  - `spec.backend.local` định nghĩa nơi `restic` sẽ lưu trữ các snapshot.
+  - `spec.volumeMounts` chỉ ra các đường dẫn mà các `sidecar` sẽ mount vào để truy cập tới các đường dẫn trong fileGroups.
+
+##### Restore
+
+Xóa restic hiện tại:
+
+```bash
+kubectl delete restic jira-restic
+```
+
+Tạo PVC để sao lưu lại dữ liệu:
+
+```bash
+cat > jira-restore-pvc.yml << EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jira-restore-pvc
+spec:
+  storageClassName: slow
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+EOF
+
+kubectl apply -f jira-restore-pvc.yml
+```
+
+Tạo `Recovery` để copy nội dung từ snapshot vào PVC `jira-restore-pvc`:
+
+```bash
+cat > jira-recovery.yml << EOF
+apiVersion: stash.appscode.com/v1alpha1
+kind: Recovery
+metadata:
+  name: jira-recovery
+spec:
+  repository:
+    name: deployment.jira-atlassian-jira-software
+  # các path bên dưới tưng ứng với các path trong fileGroups.
+  paths:
+  - /var/atlassian/jira
+  recoveredVolumes:
+  - mountPath: /var/atlassian/data
+    persistentVolumeClaim:
+      claimName: jira-restore-pvc
+EOF
+
+kubectl apply -f jira-recovery.yml
+```
+  - `spec.repository.name` chỉ ra tên của `repository` mà `restic` đã tạo khi backup
+  - `spec.paths` là các đường dẫn trong fileGroups được định nghĩa trong `restic` CRD
+  - `spec.recoveredVolumes` liệt kê danh sách các volume sẽ phục hồi dữ liệu từ snapshot. `mountPath` sẽ chỉ ra nơi volume sẽ được mount. Chú ý, `Recovery` sẽ copy ngược lại từ snapshot ra đường dẫn cũ nơi đã thực hiện backup, vì thế nên mount đúng thứ tự các đường dẫn đã tạo khi backup.
+
+#### 2. Gitlab
+
+##### Backup
+
+Tạo secret dùng để chứa mật khẩu truy cập vào snapshot
+
+```bash
+echo -n 'gitlab-backup-password' > GITLAB_RESTIC_PASSWORD
+kubectl create secret generic gitlab-secret --from-file=./GITLAB_RESTIC_PASSWORD
+```
+
+Check xem secret đã tạo thành công chưa:
+
+```
+kubectl get secret gitlab-secret -o yaml
+```
+
+Tạo restic cho Gitlab như sau:
+
+```bash
+cat > gitlab-restic.yml << EOF
+apiVersion: stash.appscode.com/v1alpha1
+kind: Restic
+metadata:
+  name: gitlab-restic
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: gitlab-gitlab-ce
+  fileGroups:
+  - path: /gitlab-data
+    retentionPolicyName: 'keep-last-3'
+  - path: /etc/gitlab
+    retentionPolicyName: 'keep-last-3'
+  backend:
+    local:
+      mountPath: /safe/data
+      nfs:
+        server: "nfs-service.storage.svc.cluster.local"
+        path: "/"
+    storageSecretName: gitlab-secret
+  schedule: '@hourly'
+  volumeMounts:
+  - mountPath: /gitlab-data
+    name: gitlab-data
+  - mountPath: /etc/gitlab
+    name: gitlab-etc
+  retentionPolicies:
+  - name: 'keep-last-3'
+    keepLast: 3
+    prune: true
+EOF
+```
+
+    NOTE: Sau khi tạo restic, một sidecar container được thêm vào deployment của gitlab. Với strategy mặc định, Deployment sẽ xóa pod gitlab cũ rồi mới tạo lại Pod mới (maxUnavailable=1 và ta chỉ có một Pod) gây downtime vài phút, ta có thể sửa tham số như sau:
+
+    ```bash
+    kubectl patch deployment gitlab-gitlab-ce --type="merge" --patch='{"spec": {"rollingUpdate": {"maxUnavailable": 0}}}'
+    ```
+
+Ta tạo restic để backup cho gitlab:
+
+```bash
+kubectl apply -f gitlab-restic.yml
+```
+
+Sau vài phút check xem đã có repository và snapshot chưa:
+
+```bash
+kubectl get repository
+kubectl get snapshot
+```
+
+##### Restore
+
+Xóa restic
+
+```bash
+kubectl delete restic gitlab-restic
+```
+
+Tạo PVC để phục hồi dữ liệu
+
+```bash
+cat > gitlab-recovery-pvc.yml <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-data-restore-pvc
+spec:
+  storageClassName: slow
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-etc-restore-pvc
+spec:
+  storageClassName: slow
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+kubectl apply -f gitlab-recovery-pvc.yml
+```
+
+Tạo `Recovery`:
+
+```bash
+cat > gitlab-recovery.yml << EOF
+apiVersion: stash.appscode.com/v1alpha1
+kind: Recovery
+metadata:
+  name: gitlab-recovery
+spec:
+  repository:
+    name: deployment.gitlab-gitlab-ce
+  paths:
+  - /gitlab-data
+  - /etc/gitlab
+  recoveredVolumes:
+  - mountPath: /gitlab-data
+    persistentVolumeClaim:
+      claimName: gitlab-data-restore-pvc
+  - mountPath: /etc/gitlab
+    persistentVolumeClaim:
+      claimName: gitlab-etc-restore-pvc
+EOF
+
+kubectl apply -f gitlab-recovery.yml
+```
+
+Mount lại vào deployment: mở giao diện sửa deployment bằng `kubectl edit deploy gitlab-gitlab-ce`. Thay PVC cũ bằng các PVC vừa tạo.
+
 ## Tham khảo:
-- https://appscode.com/products/stash/0.8.3/setup/install/
+- https://appscode.com/products/stash/0.8.1/setup/install/
 - https://github.com/appscode/third-party-tools/blob/master/storage/nfs/README.md
-- https://appscode.com/products/stash/0.8.3/guides/backup/
+- https://appscode.com/products/stash/0.8.1/guides/backup/
