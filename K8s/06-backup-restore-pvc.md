@@ -13,7 +13,7 @@ Có hai công cụ phổ biến để thực hiện yêu cầu trên là Heptio 
 
 - Restic: là Custom resource (CRD) trong Kubernetes do Stash định nghĩa và sử dụng. Nó cung cấp khả năng cấu hình cho công cụ [restic](https://restic.net) (công cụ được dùng để backup và restore). Ta chỉ cần mô tả các yêu cầu trong Restic object, Stash theo dõi object này thực hiện các yêu cầu đó
 - Repository: cũng là một Custom resource. Khi Stash thực hiện backup bằng restic nó sinh ra một Repository CRD, nó cho phép người dùng theo dõi trạng thái của các backup
-- Snapshot: thể hiện một 
+- Snapshot:
 - Recovery: là một Custom resource. Cung cấp cấu hình để restore các backup được tạo bới Stash. Người dùng chỉ cần chỉ ra: Repository, Snapshot, đường dẫn và volume muốn restore.
 
 #### Mô hình triển khai
@@ -119,7 +119,7 @@ spec:
       nfs:
         server: "nfs-service.storage.svc.cluster.local"
         path: "/jira"
-    storageSecretName: gitlab-secret
+    storageSecretName: jira-secret
   schedule: '@hourly'
   volumeMounts:
   - mountPath: /var/atlassian/jira
