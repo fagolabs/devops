@@ -1,3 +1,6 @@
+# 0. Install requisite packages
+- Cài đặt pip và module requests: apt-get install -y python-pip && pip install requests 
+
 # 1. Export Kibana dashboard, visualization, search, index-pattern
 - Thực thi script: python elasticsearch_export.py "__elasticsearch url__" "__number of objects to export__". Ví dụ: python elasticsearch_export.py http://127.0.0.1:9200 500
 - Chú ý:

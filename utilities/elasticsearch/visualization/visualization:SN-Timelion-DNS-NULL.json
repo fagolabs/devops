@@ -1,0 +1,13 @@
+{
+    "type": "visualization", 
+    "visualization": {
+        "description": "", 
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{}"
+        }, 
+        "title": "SN-Timelion-DNS-NULL", 
+        "uiStateJSON": "{}", 
+        "version": 1, 
+        "visState": "{\"type\":\"timelion\",\"title\":\"SN-Timelion-DNS-NULL\",\"params\":{\"expression\":\".es(q='dns.rrtype:NULL').label('DNS-NULL')\",\"interval\":\"auto\"}}"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "type": "visualization", 
+    "visualization": {
+        "description": "", 
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"index\":\"logstash-tls-*\",\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}},\"filter\":[]}"
+        }, 
+        "title": "SN-TLS transactions count", 
+        "uiStateJSON": "{}", 
+        "version": 1, 
+        "visState": "{\"type\":\"metric\",\"params\":{\"fontSize\":\"58\"},\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "type": "visualization", 
+    "updated_at": "2018-10-19T00:05:42.977Z", 
+    "visualization": {
+        "description": "", 
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"index\":\"699cedb0-d31b-11e8-8a07-17cc065d3fe1\",\"query\":{\"query\":\"\",\"language\":\"lucene\"},\"filter\":[]}"
+        }, 
+        "title": "SN-DNP3-Count", 
+        "uiStateJSON": "{}", 
+        "version": 1, 
+        "visState": "{\"title\":\"SN-DNP3-Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"metric\",\"metric\":{\"percentageMode\":false,\"useRanges\":false,\"colorSchema\":\"Green to Red\",\"metricColorMode\":\"None\",\"colorsRange\":[{\"from\":0,\"to\":10000}],\"labels\":{\"show\":true},\"invertColors\":false,\"style\":{\"bgFill\":\"#000\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"fontSize\":60}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}]}"
+    }
+}

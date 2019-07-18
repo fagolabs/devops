@@ -1,29 +1,29 @@
 {
     "search": {
         "columns": [
-            "dest_ip",
-            "dest_port",
-            "src_ip",
-            "src_port",
-            "proto",
-            "EveBox",
-            "FPC",
-            "tftp.file",
-            "tftp.mode",
+            "dest_ip", 
+            "dest_port", 
+            "src_ip", 
+            "src_port", 
+            "proto", 
+            "EveBox", 
+            "FPC", 
+            "tftp.file", 
+            "tftp.mode", 
             "tftp.packet"
-        ],
-        "description": "",
-        "hits": 0,
+        ], 
+        "description": "", 
+        "hits": 0, 
         "kibanaSavedObjectMeta": {
             "searchSourceJSON": "{\"index\":\"770c39b0-c1c8-11e8-9888-3f5bc9c31629\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
-        },
+        }, 
         "sort": [
-            "@timestamp",
+            "@timestamp", 
             "desc"
-        ],
-        "title": "SN-TFTP-EventsList",
+        ], 
+        "title": "SN-TFTP-EventsList", 
         "version": 1
-    },
-    "type": "search",
+    }, 
+    "type": "search", 
     "updated_at": "2018-10-12T12:04:51.966Z"
 }
