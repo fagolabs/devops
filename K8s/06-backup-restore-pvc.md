@@ -86,16 +86,17 @@ apt install -y nfs-common
 
 Chi tiết hoạt động backup và restore cho gitlab và jira
 
+Tạo secret chứa mật khẩu mã hóa
+
+```bash
+echo -n 'backup-password' > BACKUP_PASSWORD
+kubectl create secret generic backup-secret --from-file=./BACKUP_PASSWORD
+```
+
 #### 1. Jira
 
 ##### Backup
 
-Tạo secret chứa mật khẩu mã hóa
-
-```bash
-echo -n 'jira-backup-password' > JIRA_RESTIC_PASSWORD
-kubectl create secret generic jira-secret --from-file=./JIRA_RESTIC_PASSWORD
-```
 
 Tạo `restic` cho Jira như sau:
 
@@ -111,18 +112,18 @@ spec:
     matchLabels:
       app: atlassian-jira-software
   fileGroups:
-  - path: /var/atlassian/jira
+  - path: /var/atlassian
     retentionPolicyName: 'keep-last-3' 
   backend:
     local:
       mountPath: /safe/data
       nfs:
         server: "nfs-service.storage.svc.cluster.local"
-        path: "/jira"
-    storageSecretName: jira-secret
+        path: "/"
+    storageSecretName: backup-secret
   schedule: '@hourly'
   volumeMounts:
-  - mountPath: /var/atlassian/jira
+  - mountPath: /var/atlassian
     name: jira-data
   retentionPolicies:
   - name: 'keep-last-3'
@@ -135,7 +136,7 @@ EOF
   - `spec.retentionPolicies` định nghĩa rule giữ lại các snapshot. Ta có thể định nghĩa một hoặc nhiều rule và áp vào các đường dẫn trong fileGroups.
   - `spec.fileGroups` là danh sách các đường dẫn trong Pod sẽ được backup bởi restic
   - `spec.backend.local` định nghĩa nơi `restic` sẽ lưu trữ các snapshot.
-  - `spec.volumeMounts` chỉ ra các đường dẫn mà các `sidecar` sẽ mount vào để truy cập tới các đường dẫn trong fileGroups.
+  - `spec.volumeMounts` chỉ ra các đường dẫn mà các `sidecar` sẽ mount vào để truy cập tới các đường dẫn trong fileGroups. Tuy nhiên giá trị `mountPath` cũng cần phải giống như deployment cũ, nếu deployment cũ cũng có volume mount vào đường dẫn đó
 
 ##### Restore
 
@@ -176,37 +177,25 @@ metadata:
 spec:
   repository:
     name: deployment.jira-atlassian-jira-software
+    namespace: default
   # các path bên dưới tưng ứng với các path trong fileGroups.
   paths:
-  - /var/atlassian/jira
+  - /var/atlassian
   recoveredVolumes:
-  - mountPath: /var/atlassian/data
+  - mountPath: /var/atlassian
     persistentVolumeClaim:
       claimName: jira-restore-pvc
 EOF
 
 kubectl apply -f jira-recovery.yml
 ```
-  - `spec.repository.name` chỉ ra tên của `repository` mà `restic` đã tạo khi backup
+  - `spec.repository.name` chỉ ra tên của `repository` mà `restic` đã tạo khi backup. Phải có trường `namespace`
   - `spec.paths` là các đường dẫn trong fileGroups được định nghĩa trong `restic` CRD
   - `spec.recoveredVolumes` liệt kê danh sách các volume sẽ phục hồi dữ liệu từ snapshot. `mountPath` sẽ chỉ ra nơi volume sẽ được mount. Chú ý, `Recovery` sẽ copy ngược lại từ snapshot ra đường dẫn cũ nơi đã thực hiện backup, vì thế nên mount đúng thứ tự các đường dẫn đã tạo khi backup.
 
 #### 2. Gitlab
 
 ##### Backup
-
-Tạo secret dùng để chứa mật khẩu truy cập vào snapshot
-
-```bash
-echo -n 'gitlab-backup-password' > GITLAB_RESTIC_PASSWORD
-kubectl create secret generic gitlab-secret --from-file=./GITLAB_RESTIC_PASSWORD
-```
-
-Check xem secret đã tạo thành công chưa:
-
-```
-kubectl get secret gitlab-secret -o yaml
-```
 
 Tạo restic cho Gitlab như sau:
 
@@ -232,7 +221,7 @@ spec:
       nfs:
         server: "nfs-service.storage.svc.cluster.local"
         path: "/"
-    storageSecretName: gitlab-secret
+    storageSecretName: backup-secret
   schedule: '@hourly'
   volumeMounts:
   - mountPath: /gitlab-data
@@ -246,11 +235,13 @@ spec:
 EOF
 ```
 
-    NOTE: Sau khi tạo restic, một sidecar container được thêm vào deployment của gitlab. Với strategy mặc định, Deployment sẽ xóa pod gitlab cũ rồi mới tạo lại Pod mới (maxUnavailable=1 và ta chỉ có một Pod) gây downtime vài phút, ta có thể sửa tham số như sau:
+  NOTE: Sau khi tạo restic, một sidecar container được thêm vào deployment của gitlab. Với strategy mặc định, Deployment sẽ xóa pod gitlab cũ rồi mới tạo lại Pod mới (maxUnavailable=1 và ta chỉ có một Pod) gây downtime vài phút, ta có thể sửa strategy để chỉ xóa Pod khi Pod mới tạo xong:
 
-    ```bash
-    kubectl patch deployment gitlab-gitlab-ce --type="merge" --patch='{"spec": {"rollingUpdate": {"maxUnavailable": 0}}}'
-    ```
+```bash
+  kubectl edit deployment gitlab-gitlab-ce
+```
+  Di chuyển tới `spec.template.spec.rollingUpdate.maxUnavailable` và thay giá trị 1 thành 0.
+
 
 Ta tạo restic để backup cho gitlab:
 
