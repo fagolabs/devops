@@ -127,7 +127,7 @@ kubectl apply -f test-issuer.yml
 
 Check trạng thái của Issuer:
 
-```
+```console
 $ kubectl describe issuer
 
 ...

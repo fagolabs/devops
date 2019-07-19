@@ -5,7 +5,7 @@ Cài Jira sử dụng bản đóng gói của [int128](https://github.com/int128
 ```bash
 git clone https://github.com/int128/devops-kompose
 cd devops-kompose/atlassian-jira-software
-cat < jira-values.yml >>EOF
+cat > jira-values.yml << EOF
 # https://github.com/cptactionhank/docker-atlassian-jira-software
 
 image:

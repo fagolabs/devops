@@ -1,6 +1,7 @@
 Tài liệu cài đặt các tiện ích trong K8s:
 - Ingress
 - Helm
+- metrics-server
 
 ---
 # Ingress
@@ -343,3 +344,35 @@ kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 helm init --service-account tiller --upgrade
 ```
+
+# Metrics server
+
+## Mục đích
+
+Giúp xem thông tin tài nguyên sử dụng của Pod và Node.
+
+```bash
+kubectl top node
+kubectl top pod
+```
+
+## Cài đặt
+
+```bash
+git clone https://github.com/kubernetes-incubator/metrics-server -b v0.3.3
+cd metrics-server
+echo "        command:" >> deploy/1.8+/metrics-server-deployment.yaml
+echo "        - /metrics-server" >> deploy/1.8+/metrics-server-deployment.yaml
+echo "        - --kubelet-insecure-tls" >> deploy/1.8+/metrics-server-deployment.yaml
+kubectl apply -f deploy/1.8+/
+```
+<!-- cat > allow-insecure.yml << EOF
+spec:
+  template:
+    spec:
+      containers:
+      - command:
+        - /metrics-server
+        - --kubelet-insecure-tls
+EOF
+kubectl patch deploy -n kube-system metrics-server --patch "$(cat allow-insecure.yml)" -->
