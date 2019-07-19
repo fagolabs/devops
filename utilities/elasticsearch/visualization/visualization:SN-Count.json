@@ -1,0 +1,14 @@
+{
+    "type": "visualization", 
+    "visualization": {
+        "description": "", 
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": "{\"filter\":[]}"
+        }, 
+        "savedSearchId": "Suricata-events", 
+        "title": "SN-Count", 
+        "uiStateJSON": "{}", 
+        "version": 1, 
+        "visState": "{\"title\":\"SN-Count\",\"type\":\"metric\",\"params\":{\"fontSize\":\"22\"},\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}"
+    }
+}
