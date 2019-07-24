@@ -15,10 +15,12 @@
   python setup.py install
   ```
 
-- Bước 3: Trên thư mục bất kì, generate SELKS docker-compose dùng để cài SELKS:
+- Bước 3: Trên thư mục bất kì, generate SELKS docker-compose file và run SELKS stack:
 
   ```
   amsterdam -d ams -i eth0 setup
   cd ams
   docker-compose up -d
   ```
+
+  Chú ý thay giá trị eth0 bằng card mạng mà suricata muốn sniff
