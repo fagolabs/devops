@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+    common:
+        restart: always
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        logging:
+            driver: json-file
+            options:
+                max-size: "5m"
+                max-file: "2"

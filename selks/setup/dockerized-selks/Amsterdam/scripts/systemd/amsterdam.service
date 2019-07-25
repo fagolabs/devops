@@ -1,0 +1,12 @@
+[Unit]
+Description=Amsterdam
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/amsterdam -d /opt/ams start
+ExecStop=/usr/bin/amsterdam -d /opt/ams stop
+
+[Install]
+WantedBy=multi-user.target
