@@ -10,7 +10,6 @@
 - Bước 2: Setup Amsterdam:
 
   ```
-  git clone https://github.com/thaihust/Amsterdam.git
   cd Amsterdam
   python setup.py install
   ```
