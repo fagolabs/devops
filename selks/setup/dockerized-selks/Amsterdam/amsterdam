@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+# Copyright (C) 2015,2016 Stamus Networks
+#
+# You can copy, redistribute or modify this Program under the terms of
+# the GNU General Public License version 3 as published by the Free
+# Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# version 3 along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+import sys
+import argparse
+import os.path
+from amsterdam import Amsterdam, AmsterdamException, AMSTERDAM_VERSION
+
+parser = argparse.ArgumentParser(description='Amsterdam, SELKS on docker')
+parser.add_argument('-i', '--iface', default=None, help='Host iface to sniff')
+parser.add_argument('-euid', '--elasticsearch_uid', default=9999, help='Elasticsearch uid')
+parser.add_argument('-egid', '--elasticsearch_gid', default=9999, help='Elasticsearch gid')
+parser.add_argument('-v', '--verbose', default=False, action="count", help="Show verbose output, use multiple times increase verbosity")
+parser.add_argument('-d', '--data', default=None, help='Directory to store generated data into (default to ./data)')
+parser.add_argument('-n', '--name', default=None, help='Set project name')
+parser.add_argument('-f', '--full', default=False, const=True, action='store_const', help="Do a full update of instance. This will erase any modified version of config and Dockerfile")
+parser.add_argument('command', metavar='command', nargs=1, help='Amsterdam command [setup|start|stop|restart|update|rm])', default=None)
+parser.add_argument('-V',  '--version', action='version', version='%(prog)s ' + AMSTERDAM_VERSION)
+
+args = parser.parse_args()
+
+if args.command[0] not in ['setup', 'start', 'stop', 'restart', 'update', 'rm']:
+    sys.stderr.write("Invalid command: '%s'\n" % args.command)
+    sys.exit(-1)
+
+basepath = './data'
+if args.data:
+    basepath = args.data
+
+if not args.name:
+    args.name = os.path.basename(args.data)
+
+try:
+    ams = Amsterdam(args.name, args.iface, basepath, args.elasticsearch_uid, args.elasticsearch_gid)
+except AmsterdamException as err:
+    sys.stderr.write("%s\n" % (err))
+    sys.exit(-1)
+
+if args.command[0] == 'setup':
+    if args.iface == None:
+        sys.stderr.write("You need to specify an interface with -i to setup the system\n")
+        sys.exit(-1)
+    if args.elasticsearch_uid == None:
+        sys.stderr.write("elasticsearch_uid will be 9999.  You need to specify an elasticsearch uid valud with -euid to setup the system\n")
+        args.elasticsearch_uid = 9999
+    if args.elasticsearch_gid == None:
+        sys.stderr.write("elasticsearch_gid will be 9999.  You need to specify an elasticsearch gid valud with -egid to setup the system\n")
+        args.elasticsearch_gid = 9999
+    if ams.setup(args) != 0:
+        sys.exit(-1)
+if args.command[0] == 'start':
+    try:
+        if ams.start(args) != 0:
+            sys.exit(-1)
+    except KeyboardInterrupt:
+        ams.stop(args)
+elif args.command[0] == 'stop':
+    if ams.stop(args) != 0:
+        sys.exit(-1)
+elif args.command[0] == 'restart':
+    if ams.restart(args) != 0:
+        sys.exit(-1)
+elif args.command[0] == 'update':
+    if args.iface == None:
+        sys.stderr.write("You need to specify an interface with -i to update the system\n")
+        sys.exit(-1)
+    if ams.update(args) != 0:
+        sys.exit(-1)
+elif args.command[0] == 'rm':
+    sys.stdout.write("Please remove the data directory if you want to clean the system\n")
+    if ams.rm(args) != 0:
+        sys.exit(-1)

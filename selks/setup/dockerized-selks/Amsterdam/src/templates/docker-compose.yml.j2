@@ -1,0 +1,120 @@
+version: '2.1'
+
+services:
+    suricata:
+        image: thaihust/suricata:4.1.0-dev
+        volumes:
+            - $basepath/config/suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
+            - $basepath/suricata:/var/log/suricata:rw
+            - $basepath/suricata/run/:/var/run/suricata:rw
+            - $basepath/config/suricata/ethtool.conf:/etc/supervisor/conf.d/ethtool.conf:ro
+            - $basepath/scirius/:/etc/suricata/rules:rw
+        cap_add:
+            - NET_ADMIN
+            - NET_RAW
+        network_mode: host
+        # TODO set your suricata iface here
+        environment:
+            - SURICATA_ARGS="$capture_option"
+        extends:
+          file: common.yml
+          service: common
+    
+    elasticsearch:
+        build: $basepath/docker/elasticsearch
+        ports:
+            - 9200:9200
+            - 9300:9300
+        volumes:
+            - $basepath/elasticsearch:/usr/share/elasticsearch/data:rw
+        extends:
+          file: common.yml
+          service: common
+    
+    logstash:
+        image: logstash:6.7.0
+        links:
+            - elasticsearch
+        command: /opt/logstash/bin/logstash -f /etc/logstash/conf.d/ 
+        volumes:
+            - $basepath/config/logstash:/etc/logstash:ro
+            - $basepath/suricata:/var/log/suricata:ro
+        hostname: suricata
+        extends:
+          file: common.yml
+          service: common
+    
+    kibana:
+        image: kibana:6.7.0
+        links:
+            - elasticsearch
+        environment:
+            ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+        extends:
+          file: common.yml
+          service: common
+    
+    scirius:
+        image: thaihust/scirius:3.1.0
+        volumes:
+            - $basepath/config/scirius:/etc/scirius:ro
+            - $basepath/config/suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
+            - $basepath/scirius:/etc/suricata/rules:rw
+            - $basepath/suricata/run:/var/run/suricata:ro
+            - $basepath/backups:/var/backups:rw
+            # TODO uncomment correctly set path to scirius git tree on host below
+            # to run a specific scirius version
+            #- /path/to/git/stamus/scirius/:/opt/selks/scirius/:ro
+        links:
+            - elasticsearch
+            - kibana
+            - evebox
+        volumes_from:
+            - sciriusdata
+            - sciriusstatic
+        extends:
+          file: common.yml
+          service: common
+    
+    sciriusdata:
+        image: busybox:1.31
+        volumes:
+            - /sciriusdata
+        extends:
+          file: common.yml
+          service: common
+        stdin_open: true
+    
+    sciriusstatic:
+        image: busybox:1.31
+        volumes:
+            - /sciriusstatic
+        extends:
+          file: common.yml
+          service: common
+        stdin_open: true
+    
+    evebox:
+        image: jasonish/evebox:latest
+        links:
+            - elasticsearch
+        extends:
+          file: common.yml
+          service: common
+        environment:
+          - ELASTICSEARCH_URL=http://elasticsearch:9200
+    
+    nginx:
+        image: nginx:1.17
+        ports:
+            - 443:443
+        volumes: 
+            - $basepath/config/nginx/amsterdam.conf:/etc/nginx/conf.d/default.conf:ro
+            - $basepath/config/nginx/ssl/:/etc/nginx/ssl/:ro
+        links:
+            - scirius
+        volumes_from:
+            - sciriusstatic
+        extends:
+          file: common.yml
+          service: common

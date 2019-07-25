@@ -1,0 +1,8 @@
+FROM elasticsearch:6.7.0
+
+RUN usermod -u $elasticsearch_uid elasticsearch
+RUN groupmod -g $elasticsearch_gid elasticsearch
+
+EXPOSE 9200 9300
+USER elasticsearch
+CMD ["eswrapper"]
