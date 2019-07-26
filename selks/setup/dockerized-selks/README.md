@@ -26,4 +26,4 @@
 
 - Bước 4: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo hướng dẫn ở link sau: https://github.com/fagolabs/devops/tree/master/selks/utilities/elasticsearch. Trong repo này đã có sẵn scripts & các thư mục chứa dashboards, visualizations, index-patterns, searches dành cho SELKS, sẵn sàng để sử dụng.
 
-- Bước 5: Truy cập portal scirius: https://<host ip>. Account mặc định access vào scririus: scirius/scirius
+- Bước 5: Truy cập portal scirius: https://_host ip>_. Account mặc định access vào scririus: scirius/scirius
