@@ -1,6 +1,6 @@
 # Hardening Ubuntu server
 
-Giới thiệu: tăng cường an toàn thông tin cho Ubuntu server
+Giới thiệu: các tips, tricks giúp tăng cường an toàn thông tin cho Ubuntu server
 
 Contents:
 1. [Người dùng và mật khẩu](#1-Người-dùng-và-mật-khẩu)
