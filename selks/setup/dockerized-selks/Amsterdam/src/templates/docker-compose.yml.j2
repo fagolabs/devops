@@ -2,7 +2,8 @@ version: '2.1'
 
 services:
     suricata:
-        image: thaihust/suricata:4.1.0-dev
+        #image: thaihust/suricata:4.1.0-dev
+        image: thaihust/suricata:4.1.4
         volumes:
             - $basepath/config/suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
             - $basepath/suricata:/var/log/suricata:rw
@@ -16,6 +17,7 @@ services:
         # TODO set your suricata iface here
         environment:
             - SURICATA_ARGS="$capture_option"
+            - DEVICE=$iface
         extends:
           file: common.yml
           service: common
