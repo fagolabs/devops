@@ -16,7 +16,7 @@
   - Thay "__path to json directory__" bằng đường dẫn tới thư mục chứa các templates của dashboard, visualization, search, index-pattern. Script này sẽ tự tìm kiếm các templates định dạng json trong thư mục này và import vào elasticsearch.
   - Nếu không cung cấp hai giá trị "__path to json directory__" và "__elasticsearch url__" thì đường dẫn mặc định là thư mục chứa scripts python và Elasticsearch URL mặc định là http://127.0.0.1:9200
 
-#3. Import các dashboard, visualization, search, index-pattern KTS6 cho SELKS
+# 3. Import các dashboard, visualization, search, index-pattern KTS6 cho SELKS
 - Trong thư mục hiện tại đã có sẵn các templates (dashboard, visualization, search, index-pattern) dành cho SELKS có thể import để sử dụng ngay. Thực hiện lệnh sau để import:
 
 ```
