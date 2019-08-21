@@ -24,7 +24,7 @@
 
   Chú ý thay giá trị eth0 bằng card mạng mà suricata muốn sniff
 
-- Bước 4: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo mục 3 trong hướng dẫn sau: https://github.com/fagolabs/devops/tree/master/selks/utilities/elasticsearch
+- Bước 4: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo mục 3 trong hướng dẫn sau: https://github.com/thaihust/devops/tree/master/selks/utilities/elasticsearch
 
 - Bước 5: Truy cập portal scirius: https://_host ip_. Account mặc định access vào scririus: scirius/scirius
 
