@@ -116,9 +116,10 @@ services:
         network_mode: host
 
     moloch:
-      build:
-         context: $basepath/docker/moloch
-      image: moloch
+      #build:
+      #   context: $basepath/docker/moloch
+      #image: moloch
+      image: thaihust/moloch:1.6.1-1_amd64 
       environment:
         - INITALIZEDB=true
         - MOLOCH_ADMIN_USER=scirius
