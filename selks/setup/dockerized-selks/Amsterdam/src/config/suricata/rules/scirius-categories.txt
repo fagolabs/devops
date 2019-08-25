@@ -1,0 +1,10 @@
+1,2400000,ET DROP Spamhaus DROP Listed Traffic Inbound
+2,2402000,ET DROP Dshield Block Listed Source
+3,2403300,ET CINS Active Threat Intelligence Poor Reputation IP
+4,2404000,ET CNC Shadowserver Reported CnC Server IP
+5,2404026,ET CNC Shadowserver Reported CnC Server
+6,2404300,ET CNC Feodo Tracker Reported CnC Server
+7,2404400,ET CNC Ransomware Tracker Reported CnC Server
+8,2500000,ET COMPROMISED Known Compromised or Hostile Host Traffic
+9,2520000,ET TOR Known Tor Exit Node Traffic
+10,2522000,ET TOR Known Tor Relay/Router (Not Exit) Node Traffic

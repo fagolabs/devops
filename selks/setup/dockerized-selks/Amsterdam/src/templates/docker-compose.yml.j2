@@ -2,19 +2,16 @@ version: '2.1'
 
 services:
     suricata:
-        #image: thaihust/suricata:4.1.0-dev
         image: thaihust/suricata:4.1.4
         volumes:
-            - $basepath/config/suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
-            - $basepath/suricata:/var/log/suricata:rw
-            - $basepath/suricata/run/:/var/run/suricata:rw
-            - $basepath/config/suricata/ethtool.conf:/etc/supervisor/conf.d/ethtool.conf:ro
-            - $basepath/scirius/:/etc/suricata/rules:rw
+            - $basepath/config/suricata:/etc/suricata:ro
+            - $basepath/suricata/log:/var/log/suricata:rw
+            - $basepath/suricata/run:/var/run/suricata:rw
+            - $basepath/suricata/nsm:/data/nsm:rw
         cap_add:
             - NET_ADMIN
             - NET_RAW
         network_mode: host
-        # TODO set your suricata iface here
         environment:
             - SURICATA_ARGS="$capture_option"
             - DEVICE=$iface
@@ -40,7 +37,7 @@ services:
         command: /opt/logstash/bin/logstash -f /etc/logstash/conf.d/ 
         volumes:
             - $basepath/config/logstash:/etc/logstash:ro
-            - $basepath/suricata:/var/log/suricata:ro
+            - $basepath/suricata/log:/var/log/suricata:ro
         hostname: suricata
         extends:
           file: common.yml
@@ -50,6 +47,8 @@ services:
         image: kibana:6.7.0
         links:
             - elasticsearch
+        ports:
+            - 5601:5601
         environment:
             ELASTICSEARCH_HOSTS: http://elasticsearch:9200
         extends:
@@ -64,19 +63,13 @@ services:
             - $basepath/scirius:/etc/suricata/rules:rw
             - $basepath/suricata/run:/var/run/suricata:ro
             - $basepath/backups:/var/backups:rw
-            # TODO uncomment correctly set path to scirius git tree on host below
-            # to run a specific scirius version
-            #- /path/to/git/stamus/scirius/:/opt/selks/scirius/:ro
-        links:
-            - elasticsearch
-            - kibana
-            - evebox
         volumes_from:
             - sciriusdata
             - sciriusstatic
         extends:
           file: common.yml
           service: common
+        network_mode: host
     
     sciriusdata:
         image: busybox:1.31
@@ -86,6 +79,7 @@ services:
           file: common.yml
           service: common
         stdin_open: true
+        network_mode: host
     
     sciriusstatic:
         image: busybox:1.31
@@ -95,11 +89,14 @@ services:
           file: common.yml
           service: common
         stdin_open: true
+        network_mode: host
     
     evebox:
         image: jasonish/evebox:latest
         links:
             - elasticsearch
+        ports:
+            - 5636:5636
         extends:
           file: common.yml
           service: common
@@ -108,15 +105,45 @@ services:
     
     nginx:
         image: nginx:1.17
-        ports:
-            - 443:443
         volumes: 
             - $basepath/config/nginx/amsterdam.conf:/etc/nginx/conf.d/default.conf:ro
             - $basepath/config/nginx/ssl/:/etc/nginx/ssl/:ro
-        links:
-            - scirius
         volumes_from:
             - sciriusstatic
         extends:
           file: common.yml
           service: common
+        network_mode: host
+
+    moloch:
+      build:
+         context: $basepath/docker/moloch
+      image: moloch
+      environment:
+        - INITALIZEDB=true
+        - MOLOCH_ADMIN_USER=scirius
+        - MOLOCH_PASSWORD=scirius
+        - WIPEDB=false
+        - MOLOCH_VERSION=1.6.1-1_amd64
+        - UBUNTU_VERSION=18.04
+        - ES_HOST=127.0.0.1
+        - ES_PORT=9200
+        - MOLOCH_INTERFACE=$iface
+        - CAPTURE=on
+        - VIEWER=on
+      depends_on:
+        - elasticsearch
+      ports:
+        - 0.0.0.0:8005:8005
+      volumes:
+        - $basepath/config/moloch:/data/moloch/etc
+        - $basepath/moloch/tcpdump:/data/pcap
+        - $basepath/moloch/logs:/data/moloch/logs
+        - $basepath/moloch/raw:/data/moloch/raw
+        - moloch:/data/configured
+        - $basepath/suricata/log:/var/log/suricata:rw
+      network_mode: host
+
+volumes:
+  moloch:
+    driver: local
