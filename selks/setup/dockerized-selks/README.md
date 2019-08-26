@@ -68,3 +68,5 @@
   - Click lại vào Discover để xem log:
 
   ![discover](images/kibana/6.png "discover")
+
+- Bước 8: Truy cập portal moloch: https://_host ip_/moloch
