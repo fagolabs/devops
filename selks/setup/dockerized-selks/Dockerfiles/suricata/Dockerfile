@@ -40,10 +40,6 @@ RUN tar xfvz /opt/suricata-4.1.4.tar.gz \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && rm -rf /opt/suricata-4.1.4 /opt/suricata-4.1.4.tar.gz
 
-VOLUME /etc/suricata
-VOLUME /etc/suricata/rules
-VOLUME /var/log/suricata
-
 ADD files/oinkmaster.conf /etc/oinkmaster.conf
 ADD files/blacklist.sh /blacklists.sh
 ADD files/start.sh /start.sh
