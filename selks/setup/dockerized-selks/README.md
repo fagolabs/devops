@@ -70,3 +70,9 @@
   ![discover](images/kibana/6.png "discover")
 
 - Bước 8: Truy cập portal moloch: https://_host ip_/moloch
+
+- Bước 9 (optional): Copy các file pcap vào thư mục: ```ams/moloch/tcpdump```. Sau đó thực hiện lệnh sau để import các file pcaps:
+
+  ```
+  docker exec -ti ams_moloch_1 bash -c '/data/moloch-parse-pcap-folder.sh'
+  ```
