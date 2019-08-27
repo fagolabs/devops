@@ -3,12 +3,12 @@ import os
 ALLOWED_HOSTS = ['*']
 
 USE_ELASTICSEARCH = True
-ELASTICSEARCH_ADDRESS = "elasticsearch:9200"
+ELASTICSEARCH_ADDRESS = "127.0.0.1:9200"
 ELASTICSEARCH_VERSION = 6
 #ELASTICSEARCH_2X = True
 KIBANA_VERSION = 6
 KIBANA_INDEX = ".kibana"
-KIBANA_URL = "http://kibana:5601"
+KIBANA_URL = "http://127.0.0.1:5601"
 KIBANA6_DASHBOARDS_PATH = "/opt/kibana-dashboards"
 
 SURICATA_UNIX_SOCKET = "/var/run/suricata/suricata-command.socket"
@@ -18,11 +18,14 @@ KIBANA_PROXY = True
 KIBANA_DASHBOARDS_COUNT = 25
 
 USE_EVEBOX = True
-EVEBOX_ADDRESS = "evebox:5636"
+EVEBOX_ADDRESS = "127.0.0.1:5636"
 
 USE_SURICATA_STATS = True
 USE_LOGSTASH_STATS = True
 ELASTICSEARCH_LOGSTASH_ALERT_INDEX="logstash-alert-"
+
+USE_MOLOCH = True
+MOLOCH_URL = "http://localhost:8005"
 
 DATA_DIR = "/sciriusdata/"
 STATIC_ROOT = "/sciriusstatic/"

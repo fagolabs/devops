@@ -65,7 +65,7 @@ class Amsterdam:
         return datadir
 
     def create_data_dirs(self):
-        for directory in ['scirius', 'suricata', 'elasticsearch', 'backups']:
+        for directory in ['scirius', 'suricata', 'elasticsearch', 'moloch', 'backups']:
             dir_path = os.path.join(self.basepath, directory)
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
@@ -149,6 +149,34 @@ class Amsterdam:
                 ethtool_compose_file.write(ethtool_config)
             else:
                 ethtool_compose_file.write(bytes(ethtool_config, 'UTF-8'))
+
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'selks-interfaces-config.yaml.j2')
+        with open(template_path, 'r') as selks_iface_file:
+            # get the string and build template
+            selks_iface_tmpl = selks_iface_file.read()
+            selks_iface_config_tmpl = Template(selks_iface_tmpl)
+        
+            selks_iface_config = selks_iface_config_tmpl.substitute(options)
+        
+        with open(os.path.join(self.basepath, 'config', 'suricata', 'selks-interfaces-config.yaml'), 'w') as selks_compose_file:
+            if sys.version < '3':
+                selks_compose_file.write(selks_iface_config)
+            else:
+                selks_compose_file.write(bytes(selks_iface_config, 'UTF-8'))
+
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'moloch.ini.j2')
+        with open(template_path, 'r') as moloch_file:
+            # get the string and build template
+            moloch_tmpl = moloch_file.read()
+            moloch_config_tmpl = Template(moloch_tmpl)
+        
+            moloch_config = moloch_config_tmpl.substitute(options)
+        
+        with open(os.path.join(self.basepath, 'config', 'moloch', 'config.ini'), 'w') as moloch_compose_file:
+            if sys.version < '3':
+                moloch_compose_file.write(moloch_config)
+            else:
+                moloch_compose_file.write(bytes(moloch_config, 'UTF-8'))
 
     def get_api_version(self, i = 0):
         try:

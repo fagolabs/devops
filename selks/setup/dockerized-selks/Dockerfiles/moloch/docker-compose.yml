@@ -1,0 +1,43 @@
+version: '2'
+
+volumes:
+  moloch:
+    driver: local
+    #  esdata:
+    #    driver: local
+
+services:
+        #  elasticsearch:
+        #    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+        #    volumes: 
+        #      - esdata:/usr/share/elasticsearch/data
+  moloch:
+    build:
+       context: .
+    image: moloch
+    environment:
+#Make this line true on first execution and false every other time
+      - INITALIZEDB=true
+      - MOLOCH_ADMIN_USER=scirius
+      - MOLOCH_PASSWORD=scirius
+      - WIPEDB=false
+      - MOLOCH_VERSION=1.6.1-1_amd64
+      - UBUNTU_VERSION=18.04
+        #- ES_HOST=elasticsearch
+      - ES_HOST=127.0.0.1
+      - ES_PORT=9200
+      - MOLOCH_INTERFACE=ens3
+      - CAPTURE=on
+      - VIEWER=on
+        #    depends_on:
+        #      - elasticsearch
+    ports:
+      - 0.0.0.0:8005:8005
+    volumes:
+      - ./tcpdump:/data/pcap
+      - ./etc:/data/moloch/etc
+      - ./logs:/data/moloch/logs
+      - ./raw:/data/moloch/raw
+      - moloch:/data/configured
+      - /usr/src/ams/suricata/log:/var/log/suricata:rw
+    network_mode: host

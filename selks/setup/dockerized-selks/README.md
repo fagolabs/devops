@@ -24,24 +24,49 @@
 
   Chú ý thay giá trị eth0 bằng card mạng mà suricata muốn sniff
 
-- Bước 4: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo mục 3 trong hướng dẫn sau: https://github.com/thaihust/devops/tree/master/selks/utilities/elasticsearch
+- Bước 4: Kiểm tra cài đặt:
+  - Sau khi các container của stack SELKS đã tạo xong, cần phải chờ một khoảng thời gian để scirius và moloch khởi động xong dịch vụ.
+  - Kiểm tra trạng thái các docker containers:
+   
+  ```
+  docker ps
+  ```
+  
+  - Mở hai console ssh, dùng lệnh watch để theo dõi hai container scririus và moloch:
+  
+  ```
+  watch -n 2.0 "docker logs --tail 20 ams_scirius_1"
+  watch -n 2.0 "docker logs --tail 20 ams_moloch_1"
+  ```
+  
+  - Với scirius, đợi cho tới khi có log thông báo như sau nghĩa là đã khởi tạo xong:
+  
+  ![scririus](images/moloch/1-scirius.png "scirius")
+  
+  - Với moloch, đợi cho tới khi có log thông báo như sau nghĩa là đã khởi tạo xong:
+  
+  ![moloch](images/moloch/2-moloch.png "moloch")
 
-- Bước 5: Truy cập portal scirius: https://_host ip_. Account mặc định access vào scririus: scirius/scirius
+- Bước 5: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo mục 3 trong hướng dẫn sau: https://github.com/thaihust/devops/tree/master/selks/utilities/elasticsearch
 
-- Bước 6: Cấu hình Kibana portal:
+- Bước 6: Truy cập portal scirius: https://_host ip_. Account mặc định access vào scririus: scirius/scirius
+
+- Bước 7: Cấu hình Kibana portal:
 
   - Trên giao diện scirius, click vào ô Dashboard để mở Kibana dashboard: 
 
-  ![scirius to kibana](elasticsearch-dashboard-demo/1.png "scirius to kibana")
+  ![scirius to kibana](images/kibana/1.png "scirius to kibana")
 
   - Trên Kibana dashboard, click vào Discover, Kibana sẽ yêu cầu tạo một Index pattern. Nhập: `logstash*` và click Next step.
 
-  ![index pattern](elasticsearch-dashboard-demo/4.png "index pattern")
+  ![index pattern](images/kibana/4.png "index pattern")
 
   - Cấu hình Time Filter là: `@timestamp`. Sau đó click "Create index pattern"
 
-  ![time filter](elasticsearch-dashboard-demo/5.png "time filter")
+  ![time filter](images/kibana/5.png "time filter")
 
   - Click lại vào Discover để xem log:
 
-  ![discover](elasticsearch-dashboard-demo/6.png "discover")
+  ![discover](images/kibana/6.png "discover")
+
+- Bước 8: Truy cập portal moloch: https://_host ip_/moloch
