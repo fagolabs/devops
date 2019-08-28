@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# password of taiga user
-TAIGA_USER_PASS="secretpass"
+
 # domain name of taiga host
 TAIGA_DOMAIN="example.com"
-# taiga user's home
-TAIGA_HOME="/home/taiga"
 
 # install requirements
 sudo apt-get update
@@ -18,6 +15,7 @@ sudo apt-get install -y nginx
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 sudo apt update
+#sudo apt install -y postgresql-client-10 libgssapi-krb5-2 libicu60 libpq5 libssl-dev
 sudo apt -y install postgresql-10
 
 # install python and virtualenvwrapper
@@ -25,27 +23,19 @@ sudo apt-get install -y python3 python3-pip python3-dev virtualenvwrapper
 sudo apt-get install -y libxml2-dev libxslt-dev
 sudo apt-get install -y libssl-dev libffi-dev
 
-
-# make encrypt passwd for taiga
-echo $TAIGA_USER_PASS > pass.wd
-ENCRYPT_PASS=$(openssl passwd -crypt -in pass.wd)
-rm pass.wd
-# add user taiga
-useradd -m -p $ENCRYPT_PASS taiga
-adduser taiga sudo
-
 # add user and database postgresql
 sudo -u postgres createuser taiga
 sudo -u postgres createdb taiga -O taiga --encoding='utf-8' --locale=en_US.utf8 --template=template0
 
 # get backend
 cd /home/taiga
-sudo -u taiga git clone https://github.com/taigaio/taiga-back.git taiga-back
+git clone https://github.com/taigaio/taiga-back.git taiga-back
 cd taiga-back
-sudo -u taiga git checkout stable
+git checkout stable
 
 # install backend
-sudo -u taiga mkvirtualenv -p /usr/bin/python3 taiga
+source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+mkvirtualenv -p /usr/bin/python3 taiga
 pip install -r requirements.txt
 python manage.py migrate --noinput
 python manage.py loaddata initial_user
@@ -53,7 +43,7 @@ python manage.py loaddata initial_project_templates
 python manage.py compilemessages
 python manage.py collectstatic --noinput
 
-sudo -u taiga cat > $TAIGA_HOME/taiga-back/settings/local.py << EOF
+cat > ~/taiga-back/settings/local.py << EOF
 from .common import *
 
 MEDIA_URL = "https://$TAIGA_DOMAIN/media/"
@@ -90,12 +80,12 @@ EVENTS_PUSH_BACKEND_OPTIONS = {"url": "amqp://taiga:PASSWORD_FOR_EVENTS@localhos
 EOF
 
 # install frontend
-cd $TAIGA_HOME
-sudo -u taiga git clone https://github.com/taigaio/taiga-front-dist.git taiga-front-dist
+cd 
+git clone https://github.com/taigaio/taiga-front-dist.git taiga-front-dist
 cd taiga-front-dist
-sudo -u taiga git checkout stable
+git checkout stable
 
-sudo -u taiga cat > $TAIGA_HOME/taiga-front-dist/dist/conf.json << EOF
+cat > ~/taiga-front-dist/dist/conf.json << EOF
 {
     "api": "https://$TAIGA_DOMAIN/api/v1/",
     "eventsUrl": null,
@@ -122,7 +112,7 @@ sudo -u taiga cat > $TAIGA_HOME/taiga-front-dist/dist/conf.json << EOF
 EOF
 
 # run taiga with systemd
-cat > /etc/systemd/system/taiga.serivce << EOF
+cat > ~/taiga.service << EOF
 [Unit]
 Description=taiga_back
 After=network.target
@@ -138,6 +128,8 @@ RestartSec=3
 [Install]
 WantedBy=default.target
 EOF
+sudo cp ~/taiga.service /etc/systemd/system/
+sudo chown root.root -R /etc/systemd/system/*
 
 # expose with nginx
 sudo systemctl daemon-reload
@@ -147,7 +139,8 @@ sudo systemctl enable taiga
 sudo rm /etc/nginx/sites-enabled/default
 mkdir -p $TAIGA_HOME/logs
 
-cat > /etc/nginx/conf.d/taiga.conf << EOF
+
+cat > ~/taiga.conf << EOF
 server {
     listen 80 default_server;
     server_name _;
@@ -206,6 +199,8 @@ server {
         proxy_connect_timeout 7d;
         proxy_send_timeout 7d;
         proxy_read_timeout 7d;
-	}
+    }
 }
 EOF
+sudo cp ~/taiga.conf /etc/nginx/conf.d/taiga.conf
+sudo chown nginx.nginx /etc/nginx/conf.d/taiga.conf

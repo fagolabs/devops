@@ -297,18 +297,33 @@ Script cài đặt là [taiga-server.sh](./taiga-server.sh)
 
 Script cài đặt Taiga trên server Ubuntu 18.04.
 
+
+
+Tajo user taiga:
+
+```bash
+# add user taiga
+sudo adduser taiga
+sudo adduser taiga sudo
+echo "taiga ALL=(ALL) NOPASSWD: ALL" > /etc/sudoer.d/taiga
+sudo su taiga
+```
+
+Download script taiga-server.sh.
+
 Sử dụng: Sửa biến ở đầu script theo yêu cầu.
 
-```
-# password of taiga user
-TAIGA_USER_PASS="secretpass"
+```console
 # domain name of taiga host
 TAIGA_DOMAIN="example.com"
-# taiga user's home
-TAIGA_HOME="/home/taiga"
 ```
 
-và chạy script
+và chạy script:
+
+```bash
+chmod 700 taiga-server.sh
+./taiga-server.sh
+```
 
 Sau đó cấu hình SSL:
 
