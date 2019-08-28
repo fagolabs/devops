@@ -298,7 +298,6 @@ Script cài đặt là [taiga-server.sh](./taiga-server.sh)
 Script cài đặt Taiga trên server Ubuntu 18.04.
 
 
-
 Tajo user taiga:
 
 ```bash
@@ -324,6 +323,7 @@ và chạy script:
 chmod 700 taiga-server.sh
 ./taiga-server.sh
 ```
+Yêu cầu: domain cần trỏ vào host trước khi xin cert
 
 Sau đó cấu hình SSL:
 
