@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Install dependencies + docker-compose 
+echo "LC_ALL=C" >> /etc/environment
+export LC_ALL=C
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y python-pip python-setuptools libssl-dev libffi-dev openssl
 pip install --upgrade requests
