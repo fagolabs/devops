@@ -47,6 +47,12 @@
   
   ![moloch](images/moloch/2-moloch.png "moloch")
 
+  - Bước 4 là bước khởi tạo databases và setup user cho moloch. Sau khi confirm moloch đã khởi tạo xong, phải tạo lại container moloch mới với tùy chọn không khởi tạo lại database mỗi khi restart container (tránh việc xóa đi các packets đã index trong elasticsearch):
+  
+  ```
+  docker-compose -f moloch.yml up -d
+  ```
+
 - Bước 5: Import Elasticsearch visualization, index-pattern, dashboard, search vào stack SELKS theo mục 3 trong hướng dẫn sau: https://github.com/thaihust/devops/tree/master/selks/utilities/elasticsearch
 
 - Bước 6: Truy cập portal scirius: https://_host ip_. Account mặc định access vào scririus: scirius/scirius

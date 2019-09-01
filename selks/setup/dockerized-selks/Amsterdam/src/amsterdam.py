@@ -108,6 +108,21 @@ class Amsterdam:
             else:
                 amsterdam_compose_file.write(bytes(amsterdam_config, 'UTF-8'))
 
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'moloch.yml.j2')
+        with open(template_path, 'r') as moloch_stand:
+            # get the string and build template
+            moloch_stand_tmpl = moloch_stand.read()
+            moloch_stand_config_tmpl = Template(moloch_stand_tmpl)
+
+            moloch_stand_config = moloch_stand_config_tmpl.substitute(options)
+
+        with open(os.path.join(self.basepath, 'moloch.yml'), 'w') as moloch_compose_file:
+            if sys.version < '3':
+                moloch_compose_file.write(moloch_stand_config)
+            else:
+                moloch_compose_file.write(bytes(moloch_stand_config, 'UTF-8'))
+
+
         template_path = os.path.join(self.get_sys_data_dirs('templates'), 'common.yml.j2')
         with open(template_path, 'r') as common_file:
             # get the string and build template

@@ -116,34 +116,34 @@ services:
         network_mode: host
 
     moloch:
-      #build:
-      #   context: $basepath/docker/moloch
-      #image: moloch
-      image: thaihust/moloch:1.6.1-1_amd64 
-      environment:
-        - INITALIZEDB=true
-        - MOLOCH_ADMIN_USER=scirius
-        - MOLOCH_PASSWORD=scirius
-        - WIPEDB=false
-        - MOLOCH_VERSION=1.6.1-1_amd64
-        - UBUNTU_VERSION=18.04
-        - ES_HOST=127.0.0.1
-        - ES_PORT=9200
-        - MOLOCH_INTERFACE=$iface
-        - CAPTURE=on
-        - VIEWER=on
-      depends_on:
-        - elasticsearch
-      ports:
-        - 0.0.0.0:8005:8005
-      volumes:
-        - $basepath/config/moloch:/data/moloch/etc
-        - $basepath/moloch/tcpdump:/data/pcap
-        - $basepath/moloch/logs:/data/moloch/logs
-        - $basepath/moloch/raw:/data/moloch/raw
-        - moloch:/data/configured
-        - $basepath/suricata/log:/var/log/suricata:rw
-      network_mode: host
+        image: thaihust/moloch:1.6.1-1_amd64 
+        environment:
+          - INITALIZEDB=true
+          - MOLOCH_ADMIN_USER=scirius
+          - MOLOCH_PASSWORD=scirius
+          - WIPEDB=false
+          - MOLOCH_VERSION=1.6.1-1_amd64
+          - UBUNTU_VERSION=18.04
+          - ES_HOST=127.0.0.1
+          - ES_PORT=9200
+          - MOLOCH_INTERFACE=$iface
+          - CAPTURE=on
+          - VIEWER=on
+        depends_on:
+          - elasticsearch
+        ports:
+          - 0.0.0.0:8005:8005
+        volumes:
+          - $basepath/config/moloch:/data/moloch/etc
+          - $basepath/moloch/tcpdump:/data/pcap
+          - $basepath/moloch/logs:/data/moloch/logs
+          - $basepath/moloch/raw:/data/moloch/raw
+          - moloch:/data/configured
+          - $basepath/suricata/log:/var/log/suricata:rw
+        extends:
+          file: common.yml
+          service: common
+        network_mode: host
 
 volumes:
   moloch:
