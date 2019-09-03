@@ -82,3 +82,19 @@
   ```
   docker exec -ti ams_moloch_1 bash -c '/data/moloch-parse-pcap-folder.sh'
   ```
+
+# Cấu hình cho moloch
+
+- Moloch không phải là realtime system, moloch chỉ ghi SPI data vào elasticsearch đối với một session sau một khoảng thời gian timeout nhất định kể từ khi session đó đóng. Do đó trong một số trường hợp, có thể mất từ 3-5 phút SPI data mới được ghi vào elasticsearch và hiển thị trên moloch portal. Moloch support cấu hình một số loại session như sau: tcp, udp, sctp, icmp (Chi tiết thông tin các tham số cấu hình: https://molo.ch/settings). Với bộ cài hiện tại (lấy ví dụ theo hướng dẫn cài đặt ở mục trên):
+
+  - Sửa file: ```ams/config/moloch/config.ini```. Dưới section ```[default]```:
+
+  ```
+  tcpTimeout = 600
+  tcpSaveTimeout = 720
+  sctpTimeout = 60
+  udpTimeout = 30
+  icmpTimeout = 10
+  ```
+  
+  - Restart lại moloch để áp dụng cấu hình: ```docker restart ams_moloch_1```
