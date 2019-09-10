@@ -24,6 +24,19 @@ services:
         ports:
             - 9200:9200
             - 9300:9300
+        environment:
+          - cluster.name=es-moloch
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms3072m -Xmx3072m"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+          nofile:
+            soft: 65536
+            hard: 65536
+        cap_add:
+          - IPC_LOCK
         volumes:
             - $basepath/elasticsearch:/usr/share/elasticsearch/data:rw
         extends:
