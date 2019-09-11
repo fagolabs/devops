@@ -134,7 +134,7 @@ dd bs=256k count=50000 if=/dev/zero of=/data/test oflag=direct
 | --- | --- | --- | --- | --- |
 | 1 | maxESRequests | Số lượng requests tối đa đang được xử lý trong queue của Moloch | 1500 | Có thể tăng giá trị này để tránh bị drop request (ghi SPI data) từ moloch tới elasticsearch|
 | 2 | -Xms và -Xmx | Tham số cấu hình heap size của jvm cho elasticsearch| 3072m | Tương tự như tham số đầu tiên, tham số này phải tăng lên theo throughput xử lý của Moloch để áp ứng việc index các SPI data của Moloch. Với lab test hiện tại (đáp ứng throughput 277 Mbps), yêu cầu khoảng 3GB RAM cho jvm heapsize.|
-| 3 | pcapWriteSize | Buffer size moloch khi ghi pcap file | 1048576 (phải set là bội của 4096) | Giá trị này mặc định là 256k, tuy nhiên phải tăng lên 1 MB để giảm tốc độ ghi vào ổ cứng (tránh lỗi disk Q overflow) |
+| 3 | pcapWriteSize | Buffer size moloch khi ghi pcap file | 1048576 (phải set là bội của 4096) | Giá trị này mặc định là 256k, tuy nhiên phải tăng lên 1024k để giảm tốc độ ghi vào ổ cứng (tránh lỗi disk Q overflow) |
 | 4 | maxPacketsInQueue | Số lượng packet tối đa mà mỗi moloch thread phải xử lý (ở trạng thái waiting) | 500000 | Giá trị mặc định là 100k, tuy nhiên phải tăng lên để tránh tình trạng bị drop packets|
 | 5 | packetThreads | Số lượng thread cấp cho moloch để xử lý packets | 4 | Tăng lên tùy theo throughput xử lý của Moloch, mục đích là để giảm tình trạng drop packets hoặc Packet Q overflows |
   
