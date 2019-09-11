@@ -134,10 +134,20 @@ dd bs=256k count=50000 if=/dev/zero of=/data/test oflag=direct
 | --- | --- | --- | --- | --- |
 | 1 | maxESRequests | Số lượng requests tối đa đang được xử lý trong queue của Moloch | 1500 | Có thể tăng giá trị này để tránh bị drop request (ghi SPI data) từ moloch tới elasticsearch|
 | 2 | -Xms và -Xmx | Tham số cấu hình heap size của jvm cho elasticsearch| 3072m | Tương tự như tham số đầu tiên, tham số này phải tăng lên theo throughput xử lý của Moloch để áp ứng việc index các SPI data của Moloch. Với lab test hiện tại (đáp ứng throughput 277 Mbps), yêu cầu khoảng 3GB RAM cho jvm heapsize.|
-| 3 | pcapWriteSize | Buffer size moloch khi ghi pcap file | 1048576 (phải set là bội của 4096) | Giá trị này mặc định là 256k, tuy nhiên phải tăng lên 1024k để giảm tốc độ ghi vào ổ cứng (tránh lỗi disk Q overflow) |
+| 3 | pcapWriteSize | Buffer size moloch khi ghi pcap file | 1048576 (phải set là bội của 4096) | Giá trị này mặc định là 262144, tuy nhiên phải tăng lên 1048576 để giảm tốc độ ghi vào ổ cứng (tránh lỗi disk Q overflow) |
 | 4 | maxPacketsInQueue | Số lượng packet tối đa mà mỗi moloch thread phải xử lý (ở trạng thái waiting) | 500000 | Giá trị mặc định là 100k, tuy nhiên phải tăng lên để tránh tình trạng bị drop packets|
 | 5 | packetThreads | Số lượng thread cấp cho moloch để xử lý packets | 4 | Tăng lên tùy theo throughput xử lý của Moloch, mục đích là để giảm tình trạng drop packets hoặc Packet Q overflows |
   
+  - Các file settings (nằm trong thư mục chứa scripts deploy stack SELKS + moloch, ví dụ theo tutorial này là ams):
+    - config/moloch/config.ini <br>
+    Restart lại moloch để áp dụng cấu hình: ```docker restart ams_moloch_1```<br>
+    Chú ý sửa lại ams_moloch_1 (tên moloch container) cho phù hợp môi trường cài
+    - elasticsearch.yml: chỉnh sửa các tham số memory cho elasticsearch (Xmx, Xms) dưới section của dịch vụ elasticsearch. <br>
+    Với elasticsearch, để áp dụng cấu hình sau khi chỉnh sửa, chạy lại các lệnh sau:<br>
+    ```
+    docker rm -f -v ams_elasticsearch_1
+    docker-compose -f elasticsearch.yml up -d
+    ```
   - Tham số về dung lượng lưu trữ:
     - Theo kết quả đo, trong khoảng 15 phút với througput là: 277 Mbps:
       - Elasticsearch data: 1.5 GB
@@ -145,3 +155,7 @@ dd bs=256k count=50000 if=/dev/zero of=/data/test oflag=direct
       - Tổng cộng: 31.5 GB
     - Sizing cho một ngày: 3 TB
     - Sizing cho một tháng: 90 TB
+    
+  - Tham số về dung lượng RAM:
+    - Tổng dung lượng RAM cấp cho stack SELKS + Moloch đáp ứng yêu cầu 277 Mbps (3GB heapsize cấu hình cho elasticsearch): 8GB (đo được vào thời điểm chạy test bắn pcap) <br>
+    -> Recommend tối thiểu cho VMs chạy SELKS + moloch: 10 GB RAM (no swap)
