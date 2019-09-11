@@ -108,6 +108,48 @@ class Amsterdam:
             else:
                 amsterdam_compose_file.write(bytes(amsterdam_config, 'UTF-8'))
 
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'moloch.yml.j2')
+        with open(template_path, 'r') as moloch_stand:
+            # get the string and build template
+            moloch_stand_tmpl = moloch_stand.read()
+            moloch_stand_config_tmpl = Template(moloch_stand_tmpl)
+
+            moloch_stand_config = moloch_stand_config_tmpl.substitute(options)
+
+        with open(os.path.join(self.basepath, 'moloch.yml'), 'w') as moloch_compose_file:
+            if sys.version < '3':
+                moloch_compose_file.write(moloch_stand_config)
+            else:
+                moloch_compose_file.write(bytes(moloch_stand_config, 'UTF-8'))
+
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'moloch-init.yml.j2')
+        with open(template_path, 'r') as moloch_init:
+            # get the string and build template
+            moloch_init_tmpl = moloch_init.read()
+            moloch_init_config_tmpl = Template(moloch_init_tmpl)
+
+            moloch_init_config = moloch_init_config_tmpl.substitute(options)
+
+        with open(os.path.join(self.basepath, 'moloch-init.yml'), 'w') as moloch_init_compose_file:
+            if sys.version < '3':
+                moloch_init_compose_file.write(moloch_init_config)
+            else:
+                moloch_init_compose_file.write(bytes(moloch_init_config, 'UTF-8'))
+
+        template_path = os.path.join(self.get_sys_data_dirs('templates'), 'elasticsearch.yml.j2')
+        with open(template_path, 'r') as elasticsearch:
+            # get the string and build template
+            elasticsearch_tmpl = elasticsearch.read()
+            elasticsearch_config_tmpl = Template(elasticsearch_tmpl)
+
+            elasticsearch_config = elasticsearch_config_tmpl.substitute(options)
+
+        with open(os.path.join(self.basepath, 'elasticsearch.yml'), 'w') as elasticsearch_compose_file:
+            if sys.version < '3':
+                elasticsearch_compose_file.write(elasticsearch_config)
+            else:
+                elasticsearch_compose_file.write(bytes(elasticsearch_config, 'UTF-8'))
+
         template_path = os.path.join(self.get_sys_data_dirs('templates'), 'common.yml.j2')
         with open(template_path, 'r') as common_file:
             # get the string and build template
