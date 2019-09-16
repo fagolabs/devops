@@ -14,3 +14,4 @@
 5. Triển khai Jira [05-hlem-jira](./05-hlem-jira.md)
 6. Backup và restore dịch vụ bằng Stash [06-backup-restore](./06-backup-restore.md)
 7. Triển khai Taiga [07-helm-taiga](./07-helm-taiga.md)
+8. Expose dashboard [08-expose-dashboard](./08-expose-dashboard.md)
