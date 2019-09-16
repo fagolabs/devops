@@ -1,5 +1,7 @@
 # Expose K8s dashboard
 
+Thực hiện expose và hướng dẫn truy cập dashboard
+
 ## Mô hình expose
 
 Khi cài đặt với Kubespray, mặc định đã tạo K8s dashboard container và service dạng ClusterIP (không expose ra bên ngoài). Contanier này được tạo với options tự sinh cert cho SSL. Nên để expose dashboard ra ngoài thông qua Ingress, ta thực hiện như sau:
@@ -213,3 +215,53 @@ watch -n1 "kubectl get certificate -n kube-system"
 ```
 
 Khi cert chuyển sang True là đã thành công.
+
+## Truy cập dashboard
+
+Truy cập dashboard K8s thực hiện như sau:
+- Tạo người dùng
+- Gán quyền cho người dùng
+- Lấy token để truy cập
+
+### 1. Tạo người dùng admin
+
+```bash
+cat > 03-k8s-dashboard-admin-sa.yaml << EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kube-system
+EOF
+kubectl apply -f 03-k8s-dashboard-admin-sa.yaml
+```
+
+### 2. Gán quyền
+
+```bash
+cat > 04-k8s-dashboard-admin-crb.yaml << EOF
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kube-system
+EOF
+kubectl apply -f 04-k8s-dashboard-admin-crb.yaml
+```
+
+### 3. Truy cập vào dashboard
+
+Lấy token để truy cập bằng câu lệnh:
+
+```bash
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+```
+
+Truy cập vào dashboard, chọn xác thực bằng token. Copy nội dung của token vừa lấy được và paste vào đây.
