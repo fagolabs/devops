@@ -1,0 +1,56 @@
+
+replicaCount: 1
+PYTHONUNBUFFERED: 1
+
+# NOTE: variables with same default value must be declared same value.
+C_FORCE_ROOT: 1
+DJANGO_DB_NAME: DB_NAME
+DJANGO_DB_PASSWORD: DB_PASSWORD
+DJANGO_DB_USER: DB_USER
+DJANGO_SECRET_KEY: DJANGO_SECRET
+TAIGA_SECRET: DJANGO_SECRET
+
+
+POSTGRES_DB: taiga
+POSTGRES_PASSWORD: DB_PASSWORD
+POSTGRES_USER: taiga
+RABBITMQ_DEFAULT_USER: taiga
+RABBITMQ_DEFAULT_PASS: RABBIT_PASS
+RABBITMQ_DEFAULT_VHOST: /taiga
+RABBITMQ_ERLANG_COOKIE: 'ERLANGE_PASS'
+
+# Limit projects per user, and users per projects
+# Comment out for no limit
+TAIGA_MAX_PRIVATE_PROJECTS_PER_USER: 2
+TAIGA_MAX_PUBLIC_PROJECTS_PER_USER: 2
+TAIGA_MAX_MEMBERSHIPS_PRIVATE_PROJECTS: 4
+TAIGA_MAX_MEMBERSHIPS_PUBLIC_PROJECTS: 4
+
+
+# set this is your hostname
+TAIGA_HOSTNAME: MYHOSTNAME
+
+#
+TAIGA_PUBLIC_REGISTER_ENABLED: false
+
+# Set to false if you use seprate Ingress
+TAIGA_SSL: True
+
+# If you want native backup, build backend image again with backend/scripts/entrypoint.sh#76 is not commented out. If not, forget below variables
+TAIGA_DB_CHECK_SLEEP_INTERVAL: 5
+TAIGA_DB_CHECK_LIMIT_RETRIES: 10
+
+#EMAIL_USE_TLS:
+#EMAIL_HOST:
+#EMAIL_HOST_USER:
+#EMAIL_HOST_PASSWORD:
+#EMAIL_PORT:
+#DEFAULT_FROM_EMAIL:
+
+# persistent volume for taiga
+# if comment out below, PVC will be auto provision, and when delete helm it will be deleted too
+# so manually create PVC below
+taiga_db_claim: taiga-db-pvc
+taiga_volume_claim: taiga-back-pvc
+# if use native backup in this image, uncomment below line
+taiga_backup_claim: taiga-backup-pvc

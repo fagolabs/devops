@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-celeryworker
+  labels:
+    app: {{ .Release.Name }}-celeryworker
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-celeryworker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-celeryworker
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: celeryworker
+          image: hieunt79/celeryworker
+          imagePullPolicy: Always
+          entrypoint: []
+          command: ['celery', '-A', 'taiga', 'worker', '-P', 'gevent', '-c', '4', '--loglevel', 'info']
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-configmap
+          env:
+          - name: TAIGA_BACKEND
+            value: {{ .Release.Name }}-backend
+          - name: TAIGA_FRONTEND
+            value: {{ .Release.Name }}-frontend
+          - name: TAIGA_REDIS
+            value: {{ .Release.Name }}-redis
+          - name: TAIGA_RABBITMQ
+            value: {{ .Release.Name }}-rabbitmq
+          - name: TAIGA_POSTGRESQL
+            value: {{ .Release.Name }}-postgresql
+          - name: TAIGA_BACKUP_DIR
+            value: ""

@@ -1,0 +1,85 @@
+version: '2.2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+  taiga_backend_media: {}
+
+services:
+
+  postgresql:
+    image: postgres:11-alpine
+    hostname: postgresql
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    env_file:
+      - environment
+
+  redis:
+    image: redis:5-alpine
+    hostname: rabbitmq
+    env_file:
+      - environment
+
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    hostname: rabbitmq
+    env_file:
+      - environment
+
+  backend:
+    build: backend/
+    hostname: backend
+    image: ${TAIGA_CONTAINER_REGISTRY}taiga_backend
+    container_name: taiga_backend
+    volumes:
+      - taiga_backend_media:/taiga_backend/media
+      - /taiga_backend/static-root
+    env_file:
+      - environment
+    user: taiga
+    entrypoint: ['/scripts/entrypoint.sh']
+    #command: ['gunicorn', '-b', '0.0.0.0:8000', '--access-logfile','-','--access-logfile','-', 'taiga.wsgi']
+    command: [ 'python3', 'manage.py', 'runserver', '0:8000' ]
+
+  frontend:
+    build: frontend/
+    hostname: frontend
+    image: ${TAIGA_CONTAINER_REGISTRY}taiga_frontend
+    container_name: taiga_frontend
+    volumes_from:
+      - backend:ro
+    env_file:
+      - environment
+    ports:
+      - "20080:8888"
+    depends_on:
+      - postgresql
+      - backend
+      - events
+
+  celeryworker:
+    extends: backend
+    image: ${TAIGA_CONTAINER_REGISTRY}taiga_celeryworker
+    env_file:
+      - environment
+    environment:
+        - TAIGA_BACKUP_DIR=
+    container_name: taiga_celeryworker
+    hostname: celerworker
+    entrypoint: []
+    # command: ['celery', '-A', 'taiga', 'worker', '-c', '4', '--loglevel', 'info']
+    command: ['celery', '-A', 'taiga', 'worker', '-P', 'gevent', '-c', '4', '--loglevel', 'info']
+    depends_on:
+      - redis
+      - rabbitmq
+
+  events:
+    build: events/
+    hostname: events
+    image: ${TAIGA_CONTAINER_REGISTRY}taiga_events
+    env_file:
+      - environment
+    depends_on:
+      - rabbitmq
