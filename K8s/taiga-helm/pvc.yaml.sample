@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: taiga-back-pv
+  labels:
+    apps: taiga-back
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: "nfs-service.storage.svc.cluster.local"
+    path: "/taiga/backend"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-back-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      apps: taiga-back
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: taiga-db-pv
+  labels:
+    apps: taiga-db
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: "nfs-service.storage.svc.cluster.local"
+    path: "/taiga/db"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-db-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      apps: taiga-db
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: taiga-backup-pv
+  labels:
+    apps: taiga-backup
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: "nfs-service.storage.svc.cluster.local"
+    path: "/taiga/backup"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-backup-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      apps: taiga-backup
+---

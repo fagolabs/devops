@@ -1,0 +1,60 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}-frontend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-frontend
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: frontend
+          image: hieunt79/frontend
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-configmap
+          env:
+          - name: TAIGA_BACKEND
+            value: {{ .Release.Name }}-backend
+          - name: TAIGA_EVENTS
+            value: {{ .Release.Name }}-backend
+          - name: TAIGA_API_URL
+            value: https://{{ .Values.TAIGA_HOSTNAME }}/api/v1/
+          - name: TAIGA_EVENTS_URL
+            value: wss://{{ .Values.TAIGA_HOSTNAME }}/events
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: taiga-backend-media
+              mountPath: /taiga_backend/media
+              readOnly: true
+      volumes:
+        - name: taiga-backend-media
+          persistentVolumeClaim:
+{{ if .Values.taiga_volume_claim }}
+            claimName: {{ .Values.taiga_volume_claim }}
+{{ else }}
+            claimName: pv-taiga-backend
+{{ end }}
