@@ -70,7 +70,28 @@ openrc
 
 | Description | Command |
 | --- | --- |
-| List all users  | keystone user-list |
+|  List instances, notice status of instance  | nova list |
+|   List images   | nova image-list |
+|   List flavors   | nova flavor-list |
+|   Boot an instance using flavor and image names (if names are unique) | nova boot --image IMAGE --nic net-id=NETWORKID --flavor FLAVOR INSTANCE_NAME <br> nova boot --image cirros-0.3.1-x86_64-uec -nic net-id=3d706957-7696-4aa8-973f-b80892ff9a95 --flavor m1.tiny MyFirstInstance |
+|   Login to instance   | ip netns <br> ip netns exec NETNS_NAME ssh USER@SERVER <br> ip netns exec qdhcp-6021a3b4-8587-4f9c-8064-0103885dfba2 ssh cirros@10.0.0.2|
+|  Show details of instance   | nova show NAME <br> nova show MyFirstInstance |
+|  View console log of instance  | nova console-log MyFirstInstance |
+|  Set metadata on an instance  | nova meta volumeTwoImage set newmeta='my meta data' |
+| Create an instance snapshot |nova image-create volumeTwoImage snapshotOfVolumeImage <br> nova image-show snapshotOfVolumeImage|
+| __Pause, suspend, stop, rescue, resize, rebuild, reboot an instance__  | |
+| Pause  | nova list |
+| Unpause  | nova list |
+| Suspend  | nova list |
+| Unsuspend  | nova list |
+| Stop  | nova list |
+| Start  | nova list |
+| Rescue  | nova list |
+| Resize  | nova list |
+| Rebuild  | nova list |
+| Reboot  | nova list |
+| Inject user data and files into an instance | nova list |
+|  | nova boot --user-data FILE INSTANCE --image IMAGE --nic net-id=NETWORKID --flavor FLAVOR INSTANCE_NAME <br> nova boot --user-data userdata.txt --image cirros-qcow2 --nic net-id=3d706957-7696-4aa8-973f-b80892ff9a95 --flavor m1.tiny MyUserdataInstance2|
 
 ### 2.4 Neutron (Networking Service)
 
