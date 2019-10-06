@@ -49,74 +49,80 @@ cpu_model = Broadwell
 
 | Description | Command |
 | --- | --- |
-| List all users  | keystone user-list |
-| List Identity service catalog | keystone catalog |
-| List all services in service catalog  | keystone service-list |
-| Create new user  | keystone user-create --name NAME --tenant-id TENANT --pass PASSWORD --email EMAIL --enabled BOOL |
-| Create new tenant  | keystone tenant-create --name NAME --description "DESCRIPTION" --enabled BOOL |
-
-openrc
+| List all users  | openstack user list |
+| List all services in service catalog  | openstack service list |
+| Create new user  | openstack user create --domain default --password demo_user_password demo |
+| Create new project  | openstack project create --domain default --description "Demo Project" demo |
+| Create role | openstack role create _guest_ |
+| Assign a role for user on a project| openstack role add --project demo --user demo _guest_ |
+| Create openrc file |cat << EOF > demo-openrc <br> export OS_PROJECT_DOMAIN_NAME=default<br>export OS_USER_DOMAIN_NAME=default<br>export OS_PROJECT_NAME=demo<br>export OS_USERNAME=demo<br>export OS_PASSWORD=demo_user_password<br>export OS_AUTH_URL=http://controller:5000/v3<br>export OS_IDENTITY_API_VERSION=3<br>export OS_IMAGE_API_VERSION=2<br>EOF|
+| Source openrc file before executing openstack commands| source demo-openrc<br>openstack endpoint list|
 
 ### 2.2 Glance (Image Service)
 
 | Description | Command |
 | --- | --- |
-| List images you can access | glance image-list |
-| Delete specified image | glance image-delete IMAGE |
-| Describe a specific image | glance image-show IMAGE |
-| Update image  | glance image-update IMAGE |
+| List images you can access | openstack image list |
+| Delete specified image | openstack image delete <image_id> |
+| Describe a specific image | openstack image show <image_id> |
 
 ### 2.3 Nova (Compute Service)
 
 | Description | Command |
 | --- | --- |
-|  List instances, notice status of instance  | nova list |
-|   List images   | nova image-list |
-|   List flavors   | nova flavor-list |
-|   Boot an instance using flavor and image names (if names are unique) | nova boot --image IMAGE --nic net-id=NETWORKID --flavor FLAVOR INSTANCE_NAME <br> nova boot --image cirros-0.3.1-x86_64-uec -nic net-id=3d706957-7696-4aa8-973f-b80892ff9a95 --flavor m1.tiny MyFirstInstance |
-|   Login to instance   | ip netns <br> ip netns exec NETNS_NAME ssh USER@SERVER <br> ip netns exec qdhcp-6021a3b4-8587-4f9c-8064-0103885dfba2 ssh cirros@10.0.0.2|
-|  Show details of instance   | nova show NAME <br> nova show MyFirstInstance |
-|  View console log of instance  | nova console-log MyFirstInstance |
-|  Set metadata on an instance  | nova meta volumeTwoImage set newmeta='my meta data' |
-| Create an instance snapshot |nova image-create volumeTwoImage snapshotOfVolumeImage <br> nova image-show snapshotOfVolumeImage|
-| __Pause, suspend, stop, rescue, resize, rebuild, reboot an instance__  | |
-| Pause  | nova list |
-| Unpause  | nova list |
-| Suspend  | nova list |
-| Unsuspend  | nova list |
-| Stop  | nova list |
-| Start  | nova list |
-| Rescue  | nova list |
-| Resize  | nova list |
-| Rebuild  | nova list |
-| Reboot  | nova list |
-| Inject user data and files into an instance | nova list |
-|  | nova boot --user-data FILE INSTANCE --image IMAGE --nic net-id=NETWORKID --flavor FLAVOR INSTANCE_NAME <br> nova boot --user-data userdata.txt --image cirros-qcow2 --nic net-id=3d706957-7696-4aa8-973f-b80892ff9a95 --flavor m1.tiny MyUserdataInstance2|
+|__Manage compute service__||
+| List nova services| openstack compute service list|
+| List hypervisor | openstack hypervisor list|
+| Discover new compute host (add compute host to hypervisor list)| nova-manage cell_v2 discover_hosts --verbose|
+| Disable/Enable compute service| _Disable compute service:_<br>openstack compute service set --disable HYPERVISOR_HOSTNAME nova-compute<br><br>_Enable compute service:_<br>openstack compute service set --enable HYPERVISOR_HOSTNAME nova-compute|
+|__Common__||
+| List flavors   | openstack flavor list |
+| Create flavor |openstack flavor create --ram 2048 --disk 20 --vcpus 2 2C.2R.20D |
+| List instances, notice status of instance  | openstack server list |
+| Show details of instance | openstack server show INSTANCE_NAME_OR_ID<br>e.g:<br>openstack server show ubuntu_vm |
+| Login to instance   | ip netns <br> ip netns exec NETNS_NAME ssh USER@SERVER<br>ip netns exec qdhcp-6021a3b4-8587-4f9c-8064-0103885dfba2 ssh -i ubuntu_private_key.pem ubuntu@10.0.0.2|
+|  View console log of instance  | openstack console log show INSTANCE_NAME|
+| __Pause, suspend, stop, resize, rebuild, reboot an instance__  | |
+| Pause  | openstack server pause INSTANCE_NAME |
+| Unpause  | openstack server unpause INSTANCE_NAME |
+| Suspend  | openstack server suspend INSTANCE_NAME |
+| Unsuspend  | openstack server resume INSTANCE_NAME |
+| Stop  | openstack server stop INSTANCE_NAME |
+| Start  | openstack server start INSTANCE_NAME |
+| Reboot  | _Soft reboot:_<br>openstack server reboot INSTANCE_NAME<br><br>_Hard reboot_:<br>openstack server reboot --hard INSTANCE_NAME|
+| Resize  | __Step 1:__ Execute resize command:<br>openstack server resize --flavor FLAVOR_NAME INSTANCE_NAME<br>__Step 2:__ Check instance status<br>openstack server list \| grep INSTANCE_NAME<br>__Step 3:__ When the resize completes, the instance status becomes __VERIFY_RESIZE__. Then, confirm resize instance: <br>openstack server resize --confirm INSTANCE_NAME_OR_ID<br>__Step 4:__ If the resize fails or does not work as expected, you can revert the resize:<br>openstack server resize --revert INSTANCE_NAME_OR_ID|
+|__Inject a keypair into an instance and access the instance with that keypair__||
+|Create keypair | openstack keypair create --public-key HLC_WP_KEY.pub --private-key HLC_WP_KEY.pem HLC_WP_KEY<br> chmod 600 HLC_WP_KEY.pem|
+|Use ssh to connect to the instance |ip netns exec qdhcp-98f09f1e-64c4-4301-a897-5067ee6d544f ssh -i HLC_WP_KEY.pem ubuntu@10.0.0.2|
+|__Migrate instance__||
+|Live migration| __Step 1:__ List available compute host and hypervisor<br>openstack compute service list<br>openstack compute hypervisor list<br>__Step 2:__ Live migrate instance to a specific compute host<br>openstack server migrate INSTANCE_NAME_OR_ID --live HYPERVISOR_HOSTNAME<br>__Step 3:__ If live migration fails or does not work as expected, abort live migration:<br>- Get migration id:<br>nova server-migration-list INSTANCE_NAME_OR_ID<br>- Abort migration:<br>nova live-migration-abort INSTANCE_NAME_OR_ID MIGRATION_ID|
+|Cold migration | __Step 1:__ Execute migrate command:<br>openstack server migrate INSTANCE_NAME<br>This command gonna stop instance and launch instance in a new compute host<br>__Step 2:__ Check instance status<br>openstack server list \| grep INSTANCE_NAME<br>__Step 3:__ When the instance migration completes, the instance status becomes __VERIFY_RESIZE__. Then, confirm resize instance: <br>openstack server resize --confirm INSTANCE_NAME_OR_ID<br>__Step 4:__ If the cold migration fails or does not work as expected, you can revert the migration/resize:<br>openstack server resize --revert INSTANCE_NAME_OR_ID|
+|__Manage security groups__|__WIP__|
 
 ### 2.4 Neutron (Networking Service)
 
 
 | Description | Command |
 | --- | --- |
-| Create network   | neutron net-create NAME |
-| Create a subnet   | neutron subnet-create NETWORK_NAME CIDR <br> neutron subnet-create my-network 10.0.0.0/29|
-| List network and subnet   | neutron net-list<br> neutron subnet-list|
-| Examine details of network and subnet   | neutron net-show ID_OR_NAME_OF_NETWORK <br> neutron subnet-show ID_OR_NAME_OF_NETWORK|
+| List network and subnet   | openstack network list<br>openstack subnet list|
+| Examine details of network and subnet   | openstack network show <network_id><br>openstack subnet show <subnet_id>|
+|List port|openstack port list|
+|Create port and attach port to an instance|openstack port create --network <network_name_or_id> --fixed-ip subnet=<subnet_name_or_id>,ip-address=<ip_address> <port name><br>openstack server add port <server_name_or_id> <port_name_or_id>|
 
 ### 2.5 Cinder (Block Storage Service)
 
 | Description | Command |
 | --- | --- |
 | __Manage volumes & volume snapshots__ | |
-|  Create a new volume   |cinder create SIZE_IN_GB --display-name NAME <br> cinder create 1 --display-name MyFirstVolume  |
-|  Boot an instance and attach to volume | knova boot --image IMAGE --flavor FLAVOR --nic net-id=NETWORKID INSTANCE_NAME <br> nova boot --image cirros-qcow2 --flavor m1.tiny 
---nic net-id=3d706957-7696-4aa8-973f-b80892ff9a95 MyVolumeInstance |
-|  List volumes, notice status of volume | cinder list |
-|  Attach volume to instance after instance is active, and volume is available   | nova volume-attach INSTANCE_ID VOLUME_ID auto <br> nova volume-attach MyVolumeInstance /dev/vdb auto |
+| Check cinder volume & snapshot status| openstack volume list<br>openstack volume snapshot list |
+| Check cinder services status| openstack volume service list|
+| Create a new volume   |cinder create SIZE_IN_GB --display-name NAME <br>e.g:<br>cinder create 100 --display-name DATA_VOLUME  |
+| Attach volume to instance after instance is active, and volume is available  | openstack server add volume INSTANCE_NAME VOLUME_NAME<br>e.g:<br>openstack server add volume demo_instance DATA_VOLUME |
+| Create volume snapshot | openstack volume snapshot create --volume VOLUME_NAME_OR_ID --force SNAPSHOT_NAME|
 | __Manage volumes after login into the instance__ | |
 |  List storage devices  | fdisk -l |
 |  Make filesystem on volume  | mkfs.ext4 /dev/vdb |
-|  Create a mountpoint  | mkdir /myspace |
-|  Mount the volume at the mountpoint  | mount /dev/vdb /myspace |
-|  Create a file on the volume  | touch /myspace/helloworld.txt <br> ls /myspace |
-|  Unmount the volume  | umount /myspace |
+|  Create a mountpoint  | mkdir /data |
+|  Config fstab (auto mount volume everytime vm start) & mount the volume at the mountpoint | cat << EOF >> /etc/fstab<br>/dev/vdb /data               ext4    defaults 0       0<br>EOF<br><br>mount -a|
+|  Create a file on the volume  | touch /data/helloworld.txt<br>ls /data |
+|  Unmount the volume  | umount /data |
