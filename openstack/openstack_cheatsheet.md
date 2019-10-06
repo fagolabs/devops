@@ -1,5 +1,4 @@
 # OPENSTACK CHEATSHEET
----
 
 # Contents
 [1. Cấu hình CPU model cho Openstack](#_1)
@@ -9,10 +8,15 @@
 [1.2 Cấu hình CPU model custom](#_12)
 
 [2. OpenStack commands cheatsheet](#_2)
+
 [2.1 Keystone (Identity Service)](#_21_)
+
 [2.2 Glance (Image Service)](#_22_)
+
 [2.3 Nova (Compute Service)](#_22_)
+
 [2.4 Neutron (Networking Service)](#_22_)
+
 [2.5 Cinder (Block Storage Service)](#_22_)
 
 ---
