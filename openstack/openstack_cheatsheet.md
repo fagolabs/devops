@@ -1,10 +1,27 @@
-OPENSTACK CHEATSHEET
+# OPENSTACK CHEATSHEET
 ---
 
+# Contents
+[1. Cấu hình CPU model cho Openstack](#_1)
+
+[1.1 Cấu hình CPU model dpdk-compatible cho các VM](#_11)
+
+[1.2 Cấu hình CPU model custom](#_12)
+
+[2. OpenStack commands cheatsheet](#_2)
+[2.1 Keystone (Identity Service)](#_21_)
+[2.2 Glance (Image Service)](#_22_)
+[2.3 Nova (Compute Service)](#_22_)
+[2.4 Neutron (Networking Service)](#_22_)
+[2.5 Cinder (Block Storage Service)](#_22_)
+
+---
+<a name="_1"></a>
 ## 1. Cấu hình CPU model cho Openstack
 
 - Trên các Compute Node (các node chạy nova-compute), cấu hình file sau để chỉnh sửa CPU model: ```/etc/nova/nova-compute.conf```
 
+<a name="_11"></a>
 ### 1.1 Cấu hình CPU model dpdk-compatible cho các VM
 - Trên các Compute Node (các node chạy nova-compute), mở file: /etc/nova/nova-compute.conf. Chỉnh sửa dưới section ```[libvirt]```:
 
@@ -24,6 +41,7 @@ Thông thường các CPU Intel hiện đại trên các server đều support D
 
 - Restart lại nova-compute để áp dụng cấu hình: ```systemctl restart nova-compute```
 
+<a name="_12"></a>
 ### 1.2 Cấu hình CPU model custom
 - Lấy danh sách các CPU model mà KVM hỗ trợ:
 
@@ -43,8 +61,10 @@ cpu_model = Broadwell
 
 - Restart lại nova-compute để áp dụng cấu hình: ```systemctl restart nova-compute```
 
+<a name="_2"></a>
 ## 2. OpenStack commands cheatsheet
 
+<a name="_21"></a>
 ### 2.1 Keystone (Identity Service)
 
 | Description | Command |
@@ -58,6 +78,7 @@ cpu_model = Broadwell
 | Create openrc file |cat << EOF > demo-openrc <br> export OS_PROJECT_DOMAIN_NAME=default<br>export OS_USER_DOMAIN_NAME=default<br>export OS_PROJECT_NAME=demo<br>export OS_USERNAME=demo<br>export OS_PASSWORD=demo_user_password<br>export OS_AUTH_URL=http://controller:5000/v3<br>export OS_IDENTITY_API_VERSION=3<br>export OS_IMAGE_API_VERSION=2<br>EOF|
 | Source openrc file before executing openstack commands| source demo-openrc<br>openstack endpoint list|
 
+<a name="_22"></a>
 ### 2.2 Glance (Image Service)
 
 | Description | Command |
@@ -66,6 +87,7 @@ cpu_model = Broadwell
 | Delete specified image | openstack image delete <image_id> |
 | Describe a specific image | openstack image show <image_id> |
 
+<a name="_23"></a>
 ### 2.3 Nova (Compute Service)
 
 | Description | Command |
@@ -99,6 +121,7 @@ cpu_model = Broadwell
 |Cold migration | __Step 1:__ Execute migrate command:<br>openstack server migrate INSTANCE_NAME<br>This command gonna stop instance and launch instance in a new compute host<br>__Step 2:__ Check instance status<br>openstack server list \| grep INSTANCE_NAME<br>__Step 3:__ When the instance migration completes, the instance status becomes __VERIFY_RESIZE__. Then, confirm resize instance: <br>openstack server resize --confirm INSTANCE_NAME_OR_ID<br>__Step 4:__ If the cold migration fails or does not work as expected, you can revert the migration/resize:<br>openstack server resize --revert INSTANCE_NAME_OR_ID|
 |__Manage security groups__|__WIP__|
 
+<a name="_24"></a>
 ### 2.4 Neutron (Networking Service)
 
 
@@ -110,6 +133,7 @@ cpu_model = Broadwell
 |Create port and attach port to an instance|openstack port create --network <network_name_or_id> --fixed-ip subnet=<subnet_name_or_id>,ip-address=<ip_address> <port name><br>openstack server add port <server_name_or_id> <port_name_or_id>|
 |__Capture, sniff traffic on Neutron ports__|__Step 1:__ Get instance IPs and the compute host (hypervisor host) where instances are launched: <br>openstack server show INSTANCE_NAME_OR_ID \| egrep "(hypervisor_hostname\|addresses)"<br>__Step 2:__ Get port id: <br>openstack port list \| grep INSTANCE_IP <br><br>- Port ID will be like this: __db02263e-b433-411b-bd83-d396e5f3f607__<br>- Save shortened port ID: __db02263e-b4__ <br>__Step 3:__ SSH into Compute Host (got from step 1). Capture traffic on neutron port: <br>tcpdump -nni tap<shortended_port_id> <br>e.g: <br>tcpdump -nni tapdb02263e-b4 |
 
+<a name="_25"></a>
 ### 2.5 Cinder (Block Storage Service)
 
 | Description | Command |
