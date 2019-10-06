@@ -43,7 +43,7 @@ cpu_model = Broadwell
 
 - Restart lại nova-compute để áp dụng cấu hình: ```systemctl restart nova-compute```
 
-## 2. Common OpenStack operation commands
+## 2. OpenStack commands cheatsheet
 
 ### 2.1 Keystone (Identity Service)
 
@@ -72,7 +72,7 @@ cpu_model = Broadwell
 | --- | --- |
 |__Manage compute service__||
 | List nova services| openstack compute service list|
-| List hypervisor | openstack hypervisor list|
+| List hypervisors | openstack hypervisor list|
 | Discover new compute host (add compute host to hypervisor list)| nova-manage cell_v2 discover_hosts --verbose|
 | Disable/Enable compute service| _Disable compute service:_<br>openstack compute service set --disable HYPERVISOR_HOSTNAME nova-compute<br><br>_Enable compute service:_<br>openstack compute service set --enable HYPERVISOR_HOSTNAME nova-compute|
 |__Common__||
@@ -80,7 +80,7 @@ cpu_model = Broadwell
 | Create flavor |openstack flavor create --ram 2048 --disk 20 --vcpus 2 2C.2R.20D |
 | List instances, notice status of instance  | openstack server list |
 | Show details of instance | openstack server show INSTANCE_NAME_OR_ID<br>e.g:<br>openstack server show ubuntu_vm |
-| Login to instance   | ip netns <br> ip netns exec NETNS_NAME ssh USER@SERVER<br>ip netns exec qdhcp-6021a3b4-8587-4f9c-8064-0103885dfba2 ssh -i ubuntu_private_key.pem ubuntu@10.0.0.2|
+| Login to instance   | ip netns <br> ip netns exec NETNS_NAME ssh -i PATH_TO_SSH_PRIVATE_KEY USER@SERVER<br>e.g:<br>ip netns exec qdhcp-6021a3b4-8587-4f9c-8064-0103885dfba2 ssh -i ubuntu_private_key.pem ubuntu@10.0.0.2|
 |  View console log of instance  | openstack console log show INSTANCE_NAME|
 | __Pause, suspend, stop, resize, rebuild, reboot an instance__  | |
 | Pause  | openstack server pause INSTANCE_NAME |
@@ -95,7 +95,7 @@ cpu_model = Broadwell
 |Create keypair | openstack keypair create --public-key HLC_WP_KEY.pub --private-key HLC_WP_KEY.pem HLC_WP_KEY<br> chmod 600 HLC_WP_KEY.pem|
 |Use ssh to connect to the instance |ip netns exec qdhcp-98f09f1e-64c4-4301-a897-5067ee6d544f ssh -i HLC_WP_KEY.pem ubuntu@10.0.0.2|
 |__Migrate instance__||
-|Live migration| __Step 1:__ List available compute host and hypervisor<br>openstack compute service list<br>openstack compute hypervisor list<br>__Step 2:__ Live migrate instance to a specific compute host<br>openstack server migrate INSTANCE_NAME_OR_ID --live HYPERVISOR_HOSTNAME<br>__Step 3:__ If live migration fails or does not work as expected, abort live migration:<br>- Get migration id:<br>nova server-migration-list INSTANCE_NAME_OR_ID<br>- Abort migration:<br>nova live-migration-abort INSTANCE_NAME_OR_ID MIGRATION_ID|
+|Live migration| __Step 1:__ List available compute hosts and hypervisors<br>openstack compute service list<br>openstack hypervisor list<br>__Step 2:__ Live migrate instance to a specific compute host<br>openstack server migrate INSTANCE_NAME_OR_ID --live HYPERVISOR_HOSTNAME<br>__Step 3:__ If live migration fails or does not work as expected, abort live migration:<br>- Get migration id:<br>nova server-migration-list INSTANCE_NAME_OR_ID<br>- Abort migration:<br>nova live-migration-abort INSTANCE_NAME_OR_ID MIGRATION_ID|
 |Cold migration | __Step 1:__ Execute migrate command:<br>openstack server migrate INSTANCE_NAME<br>This command gonna stop instance and launch instance in a new compute host<br>__Step 2:__ Check instance status<br>openstack server list \| grep INSTANCE_NAME<br>__Step 3:__ When the instance migration completes, the instance status becomes __VERIFY_RESIZE__. Then, confirm resize instance: <br>openstack server resize --confirm INSTANCE_NAME_OR_ID<br>__Step 4:__ If the cold migration fails or does not work as expected, you can revert the migration/resize:<br>openstack server resize --revert INSTANCE_NAME_OR_ID|
 |__Manage security groups__|__WIP__|
 
@@ -108,6 +108,7 @@ cpu_model = Broadwell
 | Examine details of network and subnet   | openstack network show <network_id><br>openstack subnet show <subnet_id>|
 |List port|openstack port list|
 |Create port and attach port to an instance|openstack port create --network <network_name_or_id> --fixed-ip subnet=<subnet_name_or_id>,ip-address=<ip_address> <port name><br>openstack server add port <server_name_or_id> <port_name_or_id>|
+|__Capture, sniff traffic on Neutron ports__|__Step 1:__ Get instance IPs and the compute host (hypervisor host) where instances are launched: <br>openstack server show INSTANCE_NAME_OR_ID \| egrep "(hypervisor_hostname\|addresses)"<br>__Step 2:__ Get port id: <br>openstack port list \| grep INSTANCE_IP <br><br>- Port ID will be like this: __db02263e-b433-411b-bd83-d396e5f3f607__<br>- Save shortened port ID: __db02263e-b4__ <br>__Step 3:__ SSH into Compute Host (got from step 1). Capture traffic on neutron port: <br>tcpdump -nni tap<shortended_port_id> <br>e.g: <br>tcpdump -nni tapdb02263e-b4 |
 
 ### 2.5 Cinder (Block Storage Service)
 
@@ -125,4 +126,5 @@ cpu_model = Broadwell
 |  Create a mountpoint  | mkdir /data |
 |  Config fstab (auto mount volume everytime vm start) & mount the volume at the mountpoint | cat << EOF >> /etc/fstab<br>/dev/vdb /data               ext4    defaults 0       0<br>EOF<br><br>mount -a|
 |  Create a file on the volume  | touch /data/helloworld.txt<br>ls /data |
-|  Unmount the volume  | umount /data |
+|  Unmount the volume  | _Unmount_:<br>umount /data<br><br>_Force execute unmount:_<br>umount -l /data |
+|__Force remove volume stucked in the status "deleting"/"creating"/etc.__|WIP|
