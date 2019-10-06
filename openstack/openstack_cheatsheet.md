@@ -69,7 +69,7 @@ cpu_model = Broadwell
 ## 2. OpenStack commands cheatsheet
 
 <a name="_21"></a>
-### 2.1 Keystone (Identity Service)
+### 2.1 Keystone - Identity Service
 
 | Description | Command |
 | --- | --- |
@@ -83,7 +83,7 @@ cpu_model = Broadwell
 | Source openrc file before executing openstack commands| source demo-openrc<br>openstack endpoint list|
 
 <a name="_22"></a>
-### 2.2 Glance (Image Service)
+### 2.2 Glance - Image Service
 
 | Description | Command |
 | --- | --- |
@@ -92,7 +92,7 @@ cpu_model = Broadwell
 | Describe a specific image | openstack image show <image_id> |
 
 <a name="_23"></a>
-### 2.3 Nova (Compute Service)
+### 2.3 Nova - Compute Service
 
 | Description | Command |
 | --- | --- |
@@ -126,7 +126,7 @@ cpu_model = Broadwell
 |__Manage security groups__|__WIP__|
 
 <a name="_24"></a>
-### 2.4 Neutron (Networking Service)
+### 2.4 Neutron - Networking Service
 
 
 | Description | Command |
@@ -138,7 +138,7 @@ cpu_model = Broadwell
 |__Capture, sniff traffic on Neutron ports__|__Step 1:__ Get instance IPs and the compute host (hypervisor host) where instances are launched: <br>openstack server show INSTANCE_NAME_OR_ID \| egrep "(hypervisor_hostname\|addresses)"<br>__Step 2:__ Get port id: <br>openstack port list \| grep INSTANCE_IP <br><br>- Port ID will be like this: __db02263e-b433-411b-bd83-d396e5f3f607__<br>- Save shortened port ID: __db02263e-b4__ <br>__Step 3:__ SSH into Compute Host (got from step 1). Capture traffic on neutron port: <br>tcpdump -nni tap<shortended_port_id> <br>e.g: <br>tcpdump -nni tapdb02263e-b4 |
 
 <a name="_25"></a>
-### 2.5 Cinder (Block Storage Service)
+### 2.5 Cinder - Block Storage Service
 
 | Description | Command |
 | --- | --- |
