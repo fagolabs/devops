@@ -88,6 +88,7 @@ cpu_model = Broadwell
 | Description | Command |
 | --- | --- |
 | List images you can access | openstack image list |
+| Create an image | openstack image create IMAGE_NAME --file PATH_TO_IMAGE --disk-format IMAGE_FORMAT --container-format bare  --public <br>e.g:<br>openstack image create ubuntu-16.04.raw  --file ubuntu-16.04.raw --disk-format raw --container-format bare  --public |
 | Delete specified image | openstack image delete <image_id> |
 | Describe a specific image | openstack image show <image_id> |
 
@@ -136,6 +137,7 @@ cpu_model = Broadwell
 |List port|openstack port list|
 |Create port and attach port to an instance|openstack port create --network <network_name_or_id> --fixed-ip subnet=<subnet_name_or_id>,ip-address=<ip_address> <port name><br>openstack server add port <server_name_or_id> <port_name_or_id>|
 |__Capture, sniff traffic on Neutron ports__|__Step 1:__ Get instance IPs and the compute host (hypervisor host) where instances are launched: <br>openstack server show INSTANCE_NAME_OR_ID \| egrep "(hypervisor_hostname\|addresses)"<br>__Step 2:__ Get port id: <br>openstack port list \| grep INSTANCE_IP <br><br>- Port ID will be like this: __db02263e-b433-411b-bd83-d396e5f3f607__<br>- Save shortened port ID: __db02263e-b4__ <br>__Step 3:__ SSH into Compute Host (got from step 1). Capture traffic on neutron port: <br>tcpdump -nni tap<shortended_port_id> <br>e.g: <br>tcpdump -nni tapdb02263e-b4 |
+| Set no security group and disable port security on neutron port (in case neutron port is internet-facing interface and attached to Security Appliance like: WAF, IDS, IPS, etc.)|openstack port set --no-security-group --disable-port-security __NEUTRON_PORT_ID__|
 
 <a name="_25"></a>
 ### 2.5 Cinder - Block Storage Service
@@ -155,4 +157,4 @@ cpu_model = Broadwell
 |  Config fstab (auto mount volume everytime vm start) & mount the volume at the mountpoint | cat << EOF >> /etc/fstab<br>/dev/vdb /data               ext4    defaults 0       0<br>EOF<br><br>mount -a|
 |  Create a file on the volume  | touch /data/helloworld.txt<br>ls /data |
 |  Unmount the volume  | _Unmount_:<br>umount /data<br><br>_Force execute unmount:_<br>umount -l /data |
-|__Force remove volume stucked in the status "deleting"/"creating"/etc.__|WIP|
+|__Force remove volume stucked in the status "deleting"/"creating"/etc.__|__Step 1:__ On a controller node, set volume state and attach-status:<br>cinder reset-state --state available --attach-status detached __VOLUME_ID__<br>openstack volume list \| grep __VOLUME_ID__<br>e.g:<br>cinder reset-state --state available --attach-status detached __0baa1041-6f30-4846-abd9-7ee08045e53e__<br>openstack volume list \| grep __0baa1041-6f30-4846-abd9-7ee08045e53e__<br><br>__Important:__ Volume __state__ should be __available__ and __attach-status__ is __detached__.<br><br>__Step 2:__ On CEPH mon node, get volume status and remove volume:<br>- Get rbd volume status:<br>rados -p __CEPH_POOL_NAME__ ls \| grep -i __VOLUME_ID__<br>rbd status __CEPH_POOL_NAME__/volume-__VOLUME_ID__<br>e.g:<br>rados -p __volumes__ ls \| grep -i __0baa1041-6f30-4846-abd9-7ee08045e53e__<br>rbd status __volumes__/volume-__0baa1041-6f30-4846-abd9-7ee08045e53e__<br><br>__Important__: rbd status shoud be "__Watchers: none__"<br><br>- Remove volume:<br>rbd remove __CEPH_POOL_NAME__/volume-__VOLUME_ID__<br>e.g:<br>rbd remove __volumes__/volume-__0baa1041-6f30-4846-abd9-7ee08045e53e__<br><br>__Step 3:__ Remove volume on a controller node:<br>openstack volume delete __VOLUME_ID__<br>e.g:<br>openstack volume delete __0baa1041-6f30-4846-abd9-7ee08045e53e__|
