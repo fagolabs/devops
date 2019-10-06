@@ -1,23 +1,23 @@
 # OPENSTACK CHEATSHEET
 
-# Contents
-## [1. Cấu hình CPU model cho Openstack](#_1)
+## Contents
+### [1. Cấu hình CPU model cho Openstack](#_1)
 
-  * ### [ 1.1 Cấu hình CPU model dpdk-compatible cho các VM](#_11)
+  * #### [ 1.1 Cấu hình CPU model dpdk-compatible cho các VM](#_11)
 
-  * ### [1.2 Cấu hình CPU model custom](#_12)
+  * #### [1.2 Cấu hình CPU model custom](#_12)
 
-## [2. OpenStack commands cheatsheet](#_2)
+### [2. OpenStack commands cheatsheet](#_2)
 
-  * ### [2.1 Keystone - Identity Service](#_21)
+  * #### [2.1 Keystone - Identity Service](#_21)
 
-  * ### [2.2 Glance - Image Service](#_22)
+  * #### [2.2 Glance - Image Service](#_22)
 
-  * ### [2.3 Nova - Compute Service](#_23)
+  * #### [2.3 Nova - Compute Service](#_23)
 
-  * ### [2.4 Neutron - Networking Service](#_24)
+  * #### [2.4 Neutron - Networking Service](#_24)
 
-  * ### [2.5 Cinder - Block Storage Service](#_25)
+  * #### [2.5 Cinder - Block Storage Service](#_25)
 
 ---
 <a name="_1"></a>
