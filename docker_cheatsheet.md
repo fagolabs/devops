@@ -22,6 +22,13 @@ EOF
   - Sửa lại giá trị ```docker-registry``` thành địa chỉ IP hoặc hostname của private docker registry nếu như muốn pull docker từ cả internet và private docker registry
   - Có thể bỏ giá trị docker-registry nếu không cần dùng private docker registry
 
+- Restart docker:
+
+```sh
+systemctl daemon-reload
+systemctl restart docker
+```
+
 # Build docker images qua proxy
 Bước 2:
 - Ví dụ có thư mục chứa docker như sau:
