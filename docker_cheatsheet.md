@@ -26,10 +26,12 @@ EOF
 Bước 2:
 - Ví dụ có thư mục chứa docker như sau:
 
+```sh
 horizon __ Dockerfile
        |__ start.sh
-	   |__ copy.sh
-	   |__ ...
+       |__ copy.sh
+       |__ ...
+```
 	   
 - Build docker sau proxy sử dụng lệnh sau:
 
@@ -47,11 +49,14 @@ docker build -t horizon:queens horizon --build-arg http_proxy=${HTTP_PROXY} --bu
 # Sử dụng docker-compose sau proxy
 
 - Ví dụ có thư mục chứa docker-compose file như sau:
+
+```sh
 sandbox __ docker-compose.yml
        |__ nginx-compose.yml
        |__ documentation
-	   |__ README.md
-	   |__ 
+       |__ README.md
+       |__ 
+```
 
 - Cấu trúc docker-compose dạng như sau:
 
