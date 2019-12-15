@@ -99,11 +99,11 @@ là cặp key-value được k8s đính kèm vào pod,rep controllers,...
  
 Mỗi pod sẽ được cấp 1 ip. Các container trong cùng 1 pod cùng chia sẻ network namespace(địa chỉ ip và port). Các container trong cùng pod có thể giao tiếp vs nhau và có thể giao tiếp với các container ở pod khác (use the shared network resources). 
 
- - **ingress**
+ - **Ingress**
  
 Sau khi deploy ứng dụng lên container, để truy cập tới nó chúng ta cần một channel để bên ngoài có thể truy cập được. Channel này là ingress
 
- - **job**
+ - **Job**
  
 Tạo nên một hoặc nhiều Pod đảm bảo 1 lượng trong số chúng chạy đến khi hoàn thành. Ngay khi hoàn tất, các container sẽ ko được khởi động lại.
 Một số trường hợp sử dụng là tải một dữ liệu hàng loạt.
