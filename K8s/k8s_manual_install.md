@@ -165,25 +165,26 @@ B8: Cài đặt docker và môi trường kube
 
 	curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
-	cat \&lt;\&lt;EOF \&gt;/etc/apt/sources.list.d/kubernetes.list
+	cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 	deb http://apt.kubernetes.io/ kubernetes-xenial main
 	EOF
 
 	add-apt-repository \
-  	&quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-  	$(lsb\_release -cs) \
-  	stable&quot;
+  	"deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  	$(lsb_release -cs) \
+  	stable"
 
-	cat \&gt; /etc/docker/daemon.json \&lt;\&lt;EOF
+	cat > /etc/docker/daemon.json <<EOF
 	{
-  	&quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;],
-  	&quot;log-driver&quot;: &quot;json-file&quot;,
- 	&quot;log-opts&quot;: {
-    	 &quot;max-size&quot;: &quot;100m&quot;
-  	},
-  	&quot;storage-driver&quot;: &quot;overlay2&quot;
+  	 "exec-opts": ["native.cgroupdriver=systemd"],
+  	 "log-driver": "json-file",
+  	 "log-opts": {
+    	   "max-size": "100m"
+  	 },
+  	 "storage-driver": "overlay2"
 	}
 	EOF
+
 
 	mkdir -p /etc/systemd/system/docker.service.d
 
@@ -203,7 +204,7 @@ B10: Cập nhật cấu hình kubernetes
 
 Thêm vào dòng dòng sau
 
-	Environment=&quot;cgroup-driver=systemd/cgroup-driver=cgroupfs&quot;
+	Environment=”cgroup-driver=systemd/cgroup-driver=cgroupfs”
 
 <img src="https://i.imgur.com/xAPIZns.png">
  
@@ -215,7 +216,7 @@ B11: Cấp quyền cho docker
 
 B1: Chạy câu lệnh
 
-	kubeadm init --apiserver-advertise-address=\&lt;ip-address-of-kmaster-vm\&gt; --pod-network-cidr=192.168.0.0/16
+	kubeadm init --apiserver-advertise-address=<ip-address-of-kmaster-vm> --pod-network-cidr=192.168.0.0/16
 
 <img src="https://i.imgur.com/uZjRHD9.png"> 
 
@@ -243,14 +244,14 @@ B3: Để kiểm tra xem nó hoạt động hay không, chạy câu lệnh
 
 B4: Sửa lỗi coredns
 
-	kubectl apply -f &quot;https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d 		&#39;\n&#39;)&quot;
+	kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
 B5: Cài đặt CALICO pod network
 
 	curl https://docs.projectcalico.org/v3.9/manifests/calico.yaml -O
 
-	POD\_CIDR=&quot;\&lt;your-pod-cidr\&gt;&quot; \
-	sed -i -e &quot;s?192.168.0.0/16?$POD\_CIDR?g&quot; calico.yaml
+	POD_CIDR="<your-pod-cidr>" \
+	sed -i -e "s?192.168.0.0/16?$POD_CIDR?g" calico.yaml
 
 	kubectl apply -f calico.yaml
 
@@ -289,7 +290,7 @@ Vậy là node đã join thành công
 
    Nhập vào trang web
 
-[http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
    Và màn hình xuất hiện
 
@@ -303,7 +304,7 @@ Vậy là node đã join thành công
  	 --clusterrole=cluster-admin \
   	 --serviceaccount=default:dashboard
 
-	kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath=&quot;{.secrets[0].name}&quot;) -o jsonpath=&		quot;{.data.token}&quot; | base64 --decode
+	kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
 
 <img src="https://i.imgur.com/XGdO08q.png"> 
 
